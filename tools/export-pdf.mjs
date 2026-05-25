@@ -8,10 +8,14 @@
    Réglages : CHROME_PATH (sinon Chrome/Chromium/Edge auto-détecté sur macOS/Windows/Linux),
    ANIM_MS (attente d'animation par slide, défaut 2200), TAB_MS (attente par onglet, défaut 800). */
 
-import puppeteer from 'puppeteer-core';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+
+// puppeteer-core est la seule dépendance npm : message clair si `npm install` n'a pas été lancé dans tools/
+let puppeteer;
+try { puppeteer = (await import('puppeteer-core')).default; }
+catch { console.error(JSON.stringify({ ok: false, error: 'puppeteer-core manquant — exécute `cd tools && npm install`' })); process.exit(2); }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 

@@ -32,8 +32,8 @@ côté serveur.
 ## Installation
 
 ```bash
-git clone <url-du-repo>
-cd Projet_templateR1
+git clone https://github.com/lbelouan/Prismia_Design_Builder.git
+cd Prismia_Design_Builder
 cd tools && npm install && cd ..   # installe puppeteer-core (export PDF)
 ```
 
@@ -102,8 +102,10 @@ dashboard/           cockpit local (serveur Node natif + SPA) — node dashboard
 
 - **« CLI claude introuvable »** : `claude` n'est pas dans le PATH ou pas connecté. Ouvre un
   terminal, lance `claude`, connecte-toi, réessaie.
-- **Export PDF « Chrome introuvable »** : installe Google Chrome, ou définis le binaire :
-  `CHROME_PATH="/chemin/vers/chrome" node dashboard/server.js`.
+- **Export PDF « puppeteer-core manquant »** : tu as sauté l'install — `cd tools && npm install`.
+- **Export PDF « Chrome introuvable »** : installe Google Chrome (ou Chromium/Edge), ou définis le
+  binaire : `CHROME_PATH="/chemin/vers/chrome" node dashboard/server.js`. Sous Linux, Chrome a
+  besoin de ses libs système (libnss3, libatk-1.0, etc.).
 - **Dictée audio absente** : utilise Chrome (Web Speech API).
 - **Polices/3D** : si pas d'internet, la typo retombe sur un repli et la boule CSS s'affiche
   quand même (aucune dépendance WebGL).
