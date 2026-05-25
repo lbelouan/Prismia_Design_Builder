@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prismia × Aledia — Structurer l'IA au-delà de la production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prismia-styles.css">
+<link rel="stylesheet" href="prismia-tweaks.css">
+</head>
+<body>
+
+<div class="progress-bar" id="progress-bar"></div>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <div class="orb a"></div>
+    <div class="orb b"></div>
+    <canvas id="three-canvas" width="1920" height="1080"></canvas>
+    <div id="three-fallback" class="three-fallback">
+      <div class="tf-blob"></div>
+      <div class="tf-ring tf-ring-1"></div>
+      <div class="tf-ring tf-ring-2"></div>
+      <div class="tf-ring tf-ring-3"></div>
+      <div class="tf-shine"></div>
+    </div>
+    <div class="noise"></div>
+
+    <div class="slides">
+
+      <!-- ====================================================
+           SLIDE 01 — COVER
+           ==================================================== -->
+      <section class="slide cover active" data-label="Couverture">
+        <div class="reveal cover-eyebrow-big">
+          <span class="line"></span>
+          <span>Note de cadrage stratégique · 02</span>
+          <span class="line" style="flex:1"></span>
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+        </div>
+
+        <div class="reveal" style="max-width: 1500px;">
+          <h1 class="display">
+            Structurer <span class="it">l'IA</span><br>
+            <span class="grad">au-delà</span> de votre<br>
+            chaîne de <span class="it">production.</span>
+          </h1>
+        </div>
+
+        <div class="reveal cover-meta" style="padding: 136px 0px 0px">
+          <div>
+            <div class="label">Préparé pour</div>
+            <div class="value">Aledia — direction générale</div>
+          </div>
+          <div>
+            <div class="label">Présenté par</div>
+            <div class="value">Timéo Lejeune · Prismia</div>
+          </div>
+          <div>
+            <div class="label">Date</div>
+            <div class="value">Vendredi 22 mai 2026</div>
+          </div>
+          <div>
+            <div class="label">Secteur</div>
+            <div class="value">Semi-conducteurs</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 02 — Ce que nous avons compris
+           ==================================================== -->
+      <section class="slide" data-label="Contexte Aledia">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>01 / Contexte Aledia</span>
+        </div>
+
+        <div class="reveal eyebrow">Ce que nous avons retenu</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Une maturité IA <span class="it">forte</span> sur la production,<br>
+          encore <span class="accent">à structurer</span> sur le reste.
+        </h2>
+
+        <div class="reveal two-col mt-md" style="margin-top: 24px;">
+          <div>
+            <p class="lead" style="margin-bottom: 28px;">
+              Aledia utilise l'IA depuis plusieurs années sur les sujets techniques pointus de fabrication. Mais sur le reste — commercial, administratif, gestion d'entreprise — l'IA reste à l'état d'initiatives individuelles.
+            </p>
+            <ul class="checklist">
+              <li>IA <strong>très avancée</strong> côté production / R&amp;D fabrication</li>
+              <li>Stack <strong>Microsoft</strong> en place : Copilot disponible</li>
+              <li>Initiatives <strong>bottom-up</strong> sur le reste, non structurées</li>
+              <li>Quelques employés <strong>militants</strong> de l'IA, par conviction</li>
+              <li>Direction ouverte mais <strong>sans engagement formalisé</strong></li>
+            </ul>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div class="maturity">
+              <div class="maturity-head">
+                <h3>Production / Fabrication</h3>
+                <span class="maturity-score">●●●●○ &nbsp; 85%</span>
+              </div>
+              <div class="track"><div class="fill" data-width="85"></div></div>
+              <div class="desc">Cas d'usage matures, intégrés au quotidien des équipes techniques.</div>
+            </div>
+            <div class="maturity">
+              <div class="maturity-head">
+                <h3>Commercial &amp; Marketing</h3>
+                <span class="maturity-score" style="color: var(--magenta)">●●○○○ &nbsp; 30%</span>
+              </div>
+              <div class="track"><div class="fill dim" data-width="30"></div></div>
+              <div class="desc">Initiatives ponctuelles, pas de système structuré.</div>
+            </div>
+            <div class="maturity">
+              <div class="maturity-head">
+                <h3>Administratif &amp; Gestion</h3>
+                <span class="maturity-score" style="color: var(--magenta)">●○○○○ &nbsp; 18%</span>
+              </div>
+              <div class="track"><div class="fill dim" data-width="18"></div></div>
+              <div class="desc">Terrain quasi-vierge — fort potentiel de gains rapides.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 03 — Diagnostic
+           ==================================================== -->
+      <section class="slide" data-label="Diagnostic">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>02 / Diagnostic</span>
+        </div>
+
+        <div class="reveal eyebrow">Le constat à partager</div>
+        <h2 class="reveal title" style="max-width: 1600px;">
+          Le bottom-up <span class="it">crée la traction</span>.<br>
+          Sans cadre, il <span class="accent">freine la valeur</span>.
+        </h2>
+
+        <div class="reveal pull">
+          Les bonnes idées existent déjà chez Aledia.<br>
+          Ce qui manque, ce n'est pas l'envie — c'est la <em style="color: var(--violet-bright)">cartographie</em> qui dit où concentrer l'effort, et le <em style="color: var(--violet-bright)">cadre</em> qui transforme l'initiative individuelle en valeur d'entreprise.
+        </div>
+
+        <div class="reveal three-col" style="margin-top: 36px;">
+          <div class="diag-card">
+            <div class="num">01</div>
+            <div class="tag">→ Aujourd'hui</div>
+            <h3>Initiatives dispersées</h3>
+            <p>Quelques employés portent l'IA par conviction. La valeur reste enfermée dans des silos individuels, non transférable.</p>
+          </div>
+          <div class="diag-card">
+            <div class="num">02</div>
+            <div class="tag">→ Le risque</div>
+            <h3>Effort sans priorisation</h3>
+            <p>Sans diagnostic des processus réels, l'énergie se disperse sur des cas à faible ROI. La direction n'a pas la lecture nécessaire pour arbitrer.</p>
+          </div>
+          <div class="diag-card">
+            <div class="num">03</div>
+            <div class="tag">→ La cible</div>
+            <h3>Stratégie cohérente</h3>
+            <p>Une feuille de route priorisée par impact / effort, capitalisant sur les champions internes déjà identifiés et alignée à la direction.</p>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 04 — Trois territoires IA (tabs)
+           ==================================================== -->
+      <section class="slide" data-label="Territoires IA">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>03 / Territoires IA</span>
+        </div>
+
+        <div class="reveal eyebrow">Trois territoires à fort levier — au-delà de la production</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Là où nous voyons les <span class="it">gains rapides</span><br>
+          chez nos clients industriels.
+        </h2>
+
+        <div class="reveal tabs-rail">
+          <button class="tab-btn active" data-tab="t1">01 / Market Intelligence</button>
+          <button class="tab-btn" data-tab="t2">02 / Gestion commerciale</button>
+          <button class="tab-btn" data-tab="t3">03 / Gestion documentaire</button>
+        </div>
+
+        <div class="reveal">
+          <div class="tab-content active" id="t1">
+            <div class="terr-grid">
+              <div class="terr-detail">
+                <div class="sub">Territoire 01</div>
+                <h3>Market <span class="it">Intelligence</span></h3>
+                <p>Faire produire à l'IA des études de marché en profondeur, dont les sorties sont directement actionnables par les équipes commerciales et stratégiques.</p>
+                <ul class="checklist">
+                  <li>Veille concurrentielle automatisée et structurée</li>
+                  <li>Détection des signaux faibles sur les clients-clés</li>
+                  <li>Cartographie des opportunités marché en continu</li>
+                </ul>
+              </div>
+              <div class="uc-stack">
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Étude marché « actionable »</div>
+                  <div class="ud">Un livrable commercial directement utilisable, pas un PDF de 80 pages qu'on ne lit pas.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Mapping concurrentiel temps réel</div>
+                  <div class="ud">Mise à jour automatisée à partir de sources publiques et propriétaires.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Sourcing prospects qualifiés</div>
+                  <div class="ud">Identification automatique des cibles correspondant à votre ICP.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="t2">
+            <div class="terr-grid">
+              <div class="terr-detail">
+                <div class="sub">Territoire 02</div>
+                <h3>Gestion <span class="it">commerciale</span></h3>
+                <p>L'IA prend en charge la production des devis, la réponse aux appels d'offre, le forecasting, et entretient le CRM à partir des activités historiques.</p>
+                <ul class="checklist">
+                  <li>Devis générés à partir de configurations clients</li>
+                  <li>Réponse à appels d'offre semi-automatisée</li>
+                  <li>Forecasts plus précis, basés sur l'historique réel</li>
+                  <li>CRM mis à jour automatiquement</li>
+                </ul>
+              </div>
+              <div class="uc-stack">
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Devis intelligents</div>
+                  <div class="ud">Pré-remplis à partir des grilles tarifaires et des configurations type.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Appels d'offre assistés</div>
+                  <div class="ud">Réutilisation des AO passés, génération de premières versions de réponse.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>CRM auto-alimenté</div>
+                  <div class="ud">Mise à jour des fiches contacts depuis les échanges, calls, emails.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Plan de démarchage optimisé</div>
+                  <div class="ud">Identification des meilleures séquences de relance par segment.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="t3">
+            <div class="terr-grid">
+              <div class="terr-detail">
+                <div class="sub">Territoire 03</div>
+                <h3>Gestion <span class="it">documentaire</span></h3>
+                <p>Capitaliser sur la documentation technique et l'historique des tickets pour bâtir des agents IA qui répondent — à l'interne ou aux clients.</p>
+                <ul class="checklist">
+                  <li>Agent IA branché sur la documentation technique</li>
+                  <li>Service client augmenté par capitalisation des tickets passés</li>
+                  <li>Mémoire d'entreprise réactivable à tout moment</li>
+                </ul>
+              </div>
+              <div class="uc-stack">
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Knowledge base interne</div>
+                  <div class="ud">L'IA indexe vos documents techniques et répond aux questions internes.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Support client automatisé</div>
+                  <div class="ud">Capitalisation sur tickets et threads historiques pour répondre aux nouvelles demandes.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Réactivation projets passés</div>
+                  <div class="ud">Le bureau d'études retrouve instantanément les choix techniques de projets archivés.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 05 — Études de cas
+           ==================================================== -->
+      <section class="slide" data-label="Études de cas">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>04 / Études de cas</span>
+        </div>
+
+        <div class="reveal eyebrow">Études de cas — industriels &amp; semi-conducteurs</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Ce que nous avons déjà <span class="it">livré</span><br>
+          chez vos pairs.
+        </h2>
+
+        <div class="reveal cases-grid">
+          <div class="case-tile hero">
+            <div>
+              <span class="case-pill">Cas le plus proche</span>
+              <div class="case-meta" style="margin-top: 20px;">
+                <div class="case-name">Exosens</div>
+                <div class="case-sector">Semi-conducteurs<br>Défense</div>
+              </div>
+              <div class="case-desc" style="margin-top: 16px;">
+                Acteur des composants opto-électroniques pour la défense. Programme IA structurant, démarré par un diagnostic des processus business support, suivi du déploiement de cas d'usage priorisés sur le commercial, la gestion documentaire et la veille.
+                <br><br>
+                <strong style="color: var(--violet-bright)">Même secteur. Même point de départ : production IA mature, support business à structurer.</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">Nicomatic</div>
+              <div class="case-sector">Connectique<br>aéronautique</div>
+            </div>
+            <div class="case-desc">PME industrielle de connecteurs, accompagnement sur la structuration IA business support.</div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">Delmon Group</div>
+              <div class="case-sector">Aéronautique</div>
+            </div>
+            <div class="case-desc">Cartographie IA et déploiement de cas d'usage sur les fonctions transverses.</div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">Alma Group</div>
+              <div class="case-sector">Énergies — SAV</div>
+            </div>
+            <div class="case-desc">Système IA traitant <strong style="color: var(--violet-bright)">52 %</strong> des tickets SAV avec fiabilité <strong style="color: var(--violet-bright)">97 %</strong> à partir des conversations historiques.</div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">STACI · bpost</div>
+              <div class="case-sector">Logistique<br>multi-sites</div>
+            </div>
+            <div class="case-desc">Pilote 15 collaborateurs des départements qualité — diagnostic complet en 4 semaines.</div>
+          </div>
+        </div>
+
+        <div class="reveal clients-row">
+          <div class="client-chip"><span class="dot"></span>Daher <span class="sect">Aéronautique</span></div>
+          <div class="client-chip"><span class="dot"></span>Safran <span class="sect">Défense</span></div>
+          <div class="client-chip"><span class="dot"></span>Brittany Ferries <span class="sect">Transport</span></div>
+          <div class="client-chip"><span class="dot"></span>Degauquier &amp; Partner <span class="sect">Financier</span></div>
+          <div class="client-chip"><span class="dot"></span>Ydeo <span class="sect">Industrie</span></div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 06 — Différenciateur
+           ==================================================== -->
+      <section class="slide" data-label="Différenciateur">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>05 / Différenciateur</span>
+        </div>
+
+        <div class="reveal eyebrow">Notre différenciateur</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Notre force n'est pas la techno,<br>
+          c'est <span class="it">la qualité de la donnée</span><br>
+          qu'on récupère sur vos <span class="accent">processus réels</span>.
+        </h2>
+
+        <p class="reveal lead" style="margin-top: 24px;">
+          C'est elle qui permet de cadrer, de prioriser, et de ne déployer que ce qui crée de la valeur — y compris quand vos processus ne sont pas documentés.
+        </p>
+
+        <div class="reveal diff-grid">
+          <div class="diff-chip"><span class="icon">01</span>Tâches macro &amp; micro</div>
+          <div class="diff-chip"><span class="icon">02</span>Temps · fréquence · déclencheurs</div>
+          <div class="diff-chip"><span class="icon">03</span>Outils réellement utilisés</div>
+          <div class="diff-chip"><span class="icon">04</span>Pénibilité ressentie</div>
+          <div class="diff-chip"><span class="icon">05</span>Maturité IA individuelle</div>
+          <div class="diff-chip"><span class="icon">06</span>Points de douleur</div>
+        </div>
+
+        <div class="reveal cta-card" style="margin-top: 36px;">
+          <h3>Pourquoi ça compte pour Aledia</h3>
+          <p>Vous avez déjà des employés qui « font de l'IA ». Notre méthode capte cette intelligence diffuse, l'organise, et la transforme en feuille de route d'entreprise — sans nier les initiatives existantes, en les capitalisant.</p>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 07 — Méthodologie en 3 phases
+           ==================================================== -->
+      <section class="slide" data-label="Méthodologie">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>06 / Méthodologie</span>
+        </div>
+
+        <div class="reveal eyebrow">Notre méthodologie d'implémentation</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Le diagnostic en <span class="it">3 phases</span><br>
+          — de la collecte terrain à la feuille de route.
+        </h2>
+
+        <div class="reveal timeline">
+          <div class="tl-step">
+            <div class="node">1</div>
+            <div class="phase">Phase 01</div>
+            <h3>Lancement &amp; collecte</h3>
+            <ul>
+              <li>Kick-off &amp; signature du DPA</li>
+              <li>Déploiement de la plateforme d'entretiens</li>
+              <li>Échange avec l'Agent IA (45 min à 1h15)</li>
+              <li>Validation par chaque interviewé</li>
+            </ul>
+          </div>
+          <div class="tl-step">
+            <div class="node">2</div>
+            <div class="phase">Phase 02</div>
+            <h3>Analyse &amp; traitement</h3>
+            <ul>
+              <li>Consolidation IA &amp; détection des récurrences</li>
+              <li>Qualification : faisabilité, ROI, complexité</li>
+              <li>Benchmark des solutions du marché</li>
+              <li>Business cases chiffrés</li>
+            </ul>
+          </div>
+          <div class="tl-step">
+            <div class="node">3</div>
+            <div class="phase">Phase 03</div>
+            <h3>Restitution &amp; stratégie</h3>
+            <ul>
+              <li>Cartographie complète &amp; points de friction</li>
+              <li>Feuille de route impact / effort</li>
+              <li>Atelier de restitution direction</li>
+              <li>Accès permanent au portail d'audit</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reveal cta-card" style="margin-top: 40px;">
+          <h3>~ 4 semaines, calé sur votre calendrier</h3>
+          <p>Diagnostic complet livré en 4 semaines pour un périmètre de 15 à 30 collaborateurs. Le tarif est dégressif au-delà — chaque doublement du périmètre cartographié réduit de 10 % le coût par personne.</p>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 08 — Embarquer les équipes
+           ==================================================== -->
+      <section class="slide" data-label="Adoption">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>07 / Adoption</span>
+        </div>
+
+        <div class="reveal eyebrow">Embarquer les équipes — particulièrement clé chez Aledia</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Capitaliser sur vos <span class="it">champions internes</span>,<br>
+          pas les <span class="accent">ignorer</span>.
+        </h2>
+
+        <p class="reveal lead" style="margin-top: 24px;">
+          Vous avez déjà des employés qui poussent l'IA. Notre méthode commence par les détecter formellement et leur donner un cadre — au lieu de leur opposer un programme top-down.
+        </p>
+
+        <div class="reveal four-col" style="margin-top: 40px;">
+          <div class="pillar">
+            <div class="pnum">01</div>
+            <h3>Tout le monde interviewé</h3>
+            <p>Personne ne subit le changement, tout le monde y participe.</p>
+          </div>
+          <div class="pillar">
+            <div class="pnum">02</div>
+            <h3>Montée en compétences sur mesure</h3>
+            <p>Plans personnalisés selon la maturité IA réelle — pas de formation générique.</p>
+          </div>
+          <div class="pillar">
+            <div class="pnum">03</div>
+            <h3>Champions internes</h3>
+            <p>Nous identifions les relais déjà engagés sur l'IA et leur donnons un rôle officiel.</p>
+          </div>
+          <div class="pillar">
+            <div class="pnum">04</div>
+            <h3>Co-construction</h3>
+            <p>Les collaborateurs challengent et s'approprient les cas d'usage. Ce sont leurs idées.</p>
+          </div>
+        </div>
+
+        <p class="reveal mono text-soft" style="font-size: 14px; margin-top: 32px;">
+          → Profils seniors en conduite du changement (ex-cabinets de conseil) mobilisables à la carte et inclus dans l'offre.
+        </p>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 09 — Prismia + livrables
+           ==================================================== -->
+      <section class="slide" data-label="Prismia">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>08 / Prismia</span>
+        </div>
+
+        <div class="reveal eyebrow">Pourquoi Prismia</div>
+        <h2 class="reveal title">
+          Un partenaire,<br>
+          pas un <span class="it">fournisseur d'IA</span>.
+        </h2>
+
+        <div class="reveal four-col" style="margin-top: 24px;">
+          <div class="stat">
+            <div class="value"><span class="counter-num" data-target="3">0</span></div>
+            <div class="label">Années d'accompagnement IA</div>
+          </div>
+          <div class="stat">
+            <div class="value">~<span class="counter-num" data-target="60">0</span></div>
+            <div class="label">ETI accompagnées</div>
+          </div>
+          <div class="stat">
+            <div class="value">~<span class="counter-num" data-target="150">0</span></div>
+            <div class="label">Projets menés</div>
+          </div>
+          <div class="stat">
+            <div class="value"><span class="counter-num" data-target="3000">0</span></div>
+            <div class="label">Développeurs &amp; experts data / ML mobilisables</div>
+          </div>
+        </div>
+
+        <div class="reveal three-col" style="margin-top: 40px;">
+          <div class="diag-card">
+            <div class="tag">→ Plateforme propriétaire</div>
+            <h3>Cartographie automatisée</h3>
+            <p>Notre outil de diagnostic IA — l'avantage décisif sur les cabinets traditionnels qui font du PowerPoint.</p>
+          </div>
+          <div class="diag-card">
+            <div class="tag">→ Modèle aligné</div>
+            <h3>Forfait + indexation KPI</h3>
+            <p>Forfait fixe sur le diagnostic, marge indexée sur les KPI réellement atteints en déploiement.</p>
+          </div>
+          <div class="diag-card">
+            <div class="tag">→ Votre propriété</div>
+            <h3>Code &amp; IP côté client</h3>
+            <p>Hébergement open source ou on-premise. Aucun verrou fournisseur. Pas d'entraînement sur vos données.</p>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 10 — Questions / prochaines étapes
+           ==================================================== -->
+      <section class="slide" data-label="Prochaines étapes">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>09 / Prochaines étapes</span>
+        </div>
+
+        <div class="reveal eyebrow">Ce que nous devons explorer ensemble</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Les questions pour <span class="it">cadrer un pilote</span><br>
+          adapté à Aledia.
+        </h2>
+
+        <div class="reveal q-grid">
+          <div class="q-item">
+            <div class="q-num">→ Q.01</div>
+            <div>
+              <div class="q-t">Périmètre pilote</div>
+              <div class="q-d">Quelle équipe ou département pour démarrer ? Commercial ? Bureau d'études ? Service client interne ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.02</div>
+            <div>
+              <div class="q-t">Champions internes</div>
+              <div class="q-d">Qui sont les employés qui portent déjà l'IA ? Peut-on les associer dès le diagnostic ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.03</div>
+            <div>
+              <div class="q-t">Stack Microsoft</div>
+              <div class="q-d">Quels usages actuels de Copilot ? Quelles données restent inaccessibles à l'écosystème en place ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.04</div>
+            <div>
+              <div class="q-t">Sponsorship direction</div>
+              <div class="q-d">Qui porte le sujet IA en interne, au niveau direction ? Quelles attentes formalisées ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.05</div>
+            <div>
+              <div class="q-t">KPI cibles</div>
+              <div class="q-d">Quels indicateurs feraient passer le sujet IA d'« exploratoire » à « stratégique » côté direction ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.06</div>
+            <div>
+              <div class="q-t">Calendrier &amp; contraintes data</div>
+              <div class="q-d">Quel horizon souhaité pour un premier livrable ? Quelles contraintes sur la donnée (confidentialité, défense, etc.) ?</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal cta-card" style="margin-top: 28px;">
+          <h3>Notre proposition concrète</h3>
+          <p>Un pilote de cartographie IA sur 15 à 30 collaborateurs des fonctions business support, livré en 4 semaines. À l'issue : une feuille de route priorisée, des quick wins immédiats exploitant déjà Copilot, et l'identification formelle des champions internes.</p>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 11 — Closing
+           ==================================================== -->
+      <section class="slide cover" data-label="Merci">
+        <div class="reveal cover-eyebrow-big">
+          <span class="line"></span>
+          <span>Merci · Le phare dans le brouillard de l'IA</span>
+          <span class="line" style="flex:1"></span>
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+        </div>
+
+        <div class="reveal" style="max-width: 1500px;">
+          <h1 class="display" style="font-size: 132px;">
+            Avançons,<br>
+            <span class="grad">à votre</span> <span class="it">rythme.</span>
+          </h1>
+        </div>
+
+        <div class="reveal cover-meta">
+          <div>
+            <div class="label">Contact</div>
+            <div class="value">Timéo Lejeune</div>
+          </div>
+          <div>
+            <div class="label">Email</div>
+            <div class="value">timeo.lejeune@prismia.be</div>
+          </div>
+          <div>
+            <div class="label">Prismia</div>
+            <div class="value">Conseil &amp; implémentation IA — Belgique</div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.slides -->
+  </div><!-- /.stage -->
+</div><!-- /.stage-wrap -->
+
+<!-- ============================
+     NAV — prev/next in bottom-right
+     ============================ -->
+<div class="nav-mini">
+  <div class="nav-counter"><span id="nav-current">01</span><span class="nav-sep">/</span><span id="nav-total">11</span></div>
+  <button class="nav-btn" id="btn-prev" aria-label="Précédent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="nav-btn nav-btn-primary" id="btn-next" aria-label="Suivant">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>
+
+<!-- ============================
+     TWEAKS MOUNT
+     ============================ -->
+<div id="tweaks-root"></div>
+
+<!-- ============================
+     THREE.JS
+     ============================ -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="prismia-three.js"></script>
+<script src="prismia-deck.js"></script>
+
+<!-- React + Babel for Tweaks panel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="prismia-tweaks-app.jsx"></script>
+
+</body>
+</html>

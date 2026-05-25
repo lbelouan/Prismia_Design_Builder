@@ -1,0 +1,262 @@
+/* ============================
+   PRISMIA TWEAKS — Variable + theme overrides
+   Loaded AFTER prismia-styles.css so it overrides where needed.
+   ============================ */
+
+/* Default tokens — driven by tweaks via [data-tweak-*] on <html> */
+:root {
+  --tk-accent: #9b7cff;
+  --tk-accent2: #e07cff;
+  --tk-bg: #050310;
+  --tk-bg-glow-1: rgba(155, 124, 255, 0.16);
+  --tk-bg-glow-2: rgba(224, 124, 255, 0.10);
+  --tk-text: #f3effb;
+  --tk-text-soft: #b3a8d4;
+  --tk-text-dim: #7a6f9e;
+
+  --tk-display-size: 156px;
+  --tk-title-size: 84px;
+  --tk-body-size: 17px;
+  --tk-lead-size: 22px;
+
+  --tk-radius: 18px;
+  --tk-blur: 28px;
+  --tk-anim: 1;
+
+  --tk-pad-x: 120px;
+  --tk-pad-y: 88px;
+
+  --tk-font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --tk-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --tk-font-mono: 'JetBrains Mono', monospace;
+
+  /* derived */
+  --tk-accent-soft: color-mix(in srgb, var(--tk-accent) 14%, transparent);
+  --tk-accent-line: color-mix(in srgb, var(--tk-accent) 40%, transparent);
+  --tk-accent-bright: color-mix(in srgb, var(--tk-accent) 70%, white);
+  --tk-accent-deep:   color-mix(in srgb, var(--tk-accent) 55%, black);
+}
+
+/* ============================
+   REWIRE EXISTING TOKENS
+   Existing styles use --violet/--bg-0/etc. We redefine those at body
+   level so they flow from the tweak variables.
+   ============================ */
+body {
+  --bg-0: var(--tk-bg);
+  --bg-1: color-mix(in srgb, var(--tk-bg) 80%, #1a0f3a 20%);
+  --bg-2: color-mix(in srgb, var(--tk-bg) 65%, #1a0f3a 35%);
+
+  --text: var(--tk-text);
+  --text-soft: var(--tk-text-soft);
+  --text-dim: var(--tk-text-dim);
+
+  --violet:        var(--tk-accent);
+  --violet-bright: var(--tk-accent-bright);
+  --violet-deep:   var(--tk-accent-deep);
+  --violet-soft:   var(--tk-accent-soft);
+  --violet-line:   var(--tk-accent-line);
+  --magenta:       var(--tk-accent2);
+
+  --line:        color-mix(in srgb, var(--tk-accent) 16%, transparent);
+  --line-bright: color-mix(in srgb, var(--tk-accent) 42%, transparent);
+
+  --surface:        color-mix(in srgb, var(--tk-bg) 60%, transparent);
+  --surface-strong: color-mix(in srgb, var(--tk-bg) 80%, transparent);
+
+  --radius-card: var(--tk-radius);
+
+  font-family: var(--tk-font-sans);
+}
+
+/* Stage background gradient driven by accent */
+.stage {
+  background:
+    radial-gradient(ellipse 1200px 800px at 80% -10%, var(--tk-bg-glow-1), transparent 60%),
+    radial-gradient(ellipse 900px 700px at -10% 110%, var(--tk-bg-glow-2), transparent 60%),
+    var(--tk-bg) !important;
+}
+
+/* ============================
+   TYPOGRAPHY OVERRIDES
+   ============================ */
+h1.display { font-size: var(--tk-display-size); font-family: var(--tk-font-display); }
+h2.title { font-size: var(--tk-title-size); font-family: var(--tk-font-display); }
+h2.title .it, h1.display .it {
+  font-family: var(--tk-font-display);
+}
+p, li, .body { font-size: var(--tk-body-size); }
+.lead { font-size: var(--tk-lead-size); }
+
+.eyebrow, .mono, .slide-chrome-top, .slide-chrome-bot, .case-sector, .case-pill,
+.tab-btn, .client-chip .sect, .terr-detail .sub, .tl-step .phase, .stat .label,
+.q-num, .label, .cover-eyebrow-big, .diag-card .tag {
+  font-family: var(--tk-font-mono);
+}
+
+.cover-meta .value, .stat .value, .stat .value .it, .case-name, .terr-detail h3,
+.tl-step h3, .diag-card h3, .pull, .pillar .pnum, .cta-card h3,
+.diag-card .num {
+  font-family: var(--tk-font-display);
+}
+
+/* ============================
+   GLASS BLUR
+   ============================ */
+.glass, .maturity, .uc-card, .case-tile, .client-chip,
+.diff-chip, .pillar, .stat, .q-item {
+  backdrop-filter: blur(var(--tk-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--tk-blur)) saturate(140%);
+}
+
+/* ============================
+   STAGE PADDING (density)
+   ============================ */
+.slide {
+  padding: var(--tk-pad-y) var(--tk-pad-x);
+}
+
+/* ============================
+   ANIMATION SPEED
+   ============================ */
+.slide.active .reveal {
+  animation-duration: calc(0.7s / var(--tk-anim)) !important;
+}
+.maturity .fill {
+  transition-duration: calc(1.4s / var(--tk-anim)) !important;
+}
+
+/* ============================
+   ITALIC ACCENT TOGGLE
+   When .italics-off on body, all .it spans render upright.
+   ============================ */
+.italics-off h1.display .it,
+.italics-off h2.title .it,
+.italics-off .stat .value .it,
+.italics-off .terr-detail h3 .it,
+.italics-off .cta-card h3,
+.italics-off .pillar .pnum {
+  font-style: normal !important;
+}
+
+/* ============================
+   CARD STYLE: SOLID
+   ============================ */
+.cards-solid .glass,
+.cards-solid .maturity,
+.cards-solid .diag-card,
+.cards-solid .case-tile,
+.cards-solid .pillar,
+.cards-solid .stat,
+.cards-solid .q-item,
+.cards-solid .uc-card,
+.cards-solid .diff-chip,
+.cards-solid .client-chip {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--surface-strong) !important;
+}
+
+/* CARD STYLE: OUTLINE */
+.cards-outline .glass,
+.cards-outline .maturity,
+.cards-outline .diag-card,
+.cards-outline .case-tile,
+.cards-outline .pillar,
+.cards-outline .stat,
+.cards-outline .q-item,
+.cards-outline .uc-card,
+.cards-outline .diff-chip,
+.cards-outline .client-chip {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: transparent !important;
+  border: 1px solid var(--line-bright) !important;
+}
+.cards-outline .case-tile.hero {
+  background: linear-gradient(135deg, var(--tk-accent-soft) 0%, transparent 70%) !important;
+}
+
+/* CARD STYLE: FLAT (no border, soft fill) */
+.cards-flat .glass,
+.cards-flat .maturity,
+.cards-flat .diag-card,
+.cards-flat .case-tile,
+.cards-flat .pillar,
+.cards-flat .stat,
+.cards-flat .q-item,
+.cards-flat .uc-card,
+.cards-flat .diff-chip {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--tk-accent-soft) !important;
+  border: 0 !important;
+}
+
+/* ============================
+   DECOR TOGGLES
+   ============================ */
+.no-grid .stage::before { display: none !important; }
+.no-noise .noise { display: none !important; }
+.no-orbs .orb { display: none !important; }
+.no-progress .progress-bar { display: none !important; }
+.no-chrome .slide-chrome-top,
+.no-chrome .slide-chrome-bot { display: none !important; }
+
+.grid-strong .stage::before {
+  background-size: 60px 60px !important;
+  opacity: 0.6 !important;
+}
+
+/* ============================
+   LIGHT THEME
+   ============================ */
+.theme-light {
+  --tk-bg: #f5f1e8;
+  --tk-text: #1a1208;
+  --tk-text-soft: #5c4f3e;
+  --tk-text-dim: #948574;
+  --tk-bg-glow-1: color-mix(in srgb, var(--tk-accent) 14%, transparent);
+  --tk-bg-glow-2: color-mix(in srgb, var(--tk-accent2) 8%, transparent);
+}
+.theme-light .stage::before {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px) !important;
+}
+.theme-light .noise { display: none; }
+.theme-light .glass, .theme-light .maturity, .theme-light .case-tile,
+.theme-light .pillar, .theme-light .stat, .theme-light .q-item,
+.theme-light .uc-card, .theme-light .diag-card, .theme-light .diff-chip {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+.theme-light .case-tile.hero {
+  background: linear-gradient(135deg, var(--tk-accent-soft), rgba(255,255,255,0.6) 70%) !important;
+}
+
+/* ============================
+   3D FALLBACK accent color
+   ============================ */
+.tf-blob {
+  background:
+    radial-gradient(circle at 30% 25%, #fff 0%, transparent 20%),
+    radial-gradient(circle at 70% 35%, rgba(255,255,255,0.5) 0%, transparent 25%),
+    radial-gradient(circle at 35% 70%, var(--tk-accent2) 0%, transparent 45%),
+    radial-gradient(circle at 70% 80%, var(--tk-accent-deep) 0%, transparent 55%),
+    conic-gradient(from 220deg, var(--tk-accent) 0%, var(--tk-accent-bright) 25%, var(--tk-accent2) 50%, var(--tk-accent-deep) 75%, var(--tk-accent) 100%) !important;
+}
+
+/* ============================
+   NAV MINI — driven by accent
+   ============================ */
+.nav-btn-primary {
+  background: var(--tk-accent) !important;
+}
+
+/* ============================
+   PROGRESS BAR colored by accent
+   ============================ */
+.progress-bar {
+  background: linear-gradient(90deg, var(--tk-accent-deep), var(--tk-accent-bright), var(--tk-accent2)) !important;
+}

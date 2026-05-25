@@ -1,0 +1,30 @@
+# === Dépendances (réinstallées via `npm install` dans tools/) ===
+node_modules/
+
+# === Junk OS / éditeur ===
+.DS_Store
+Thumbs.db
+*.log
+
+# === Réglages Claude Code locaux à la machine (chemins/permissions de l'utilisateur) ===
+.claude/settings.local.json
+
+# === Cache Python (skill ui-ux-pro-max) ===
+__pycache__/
+*.pyc
+
+# === Sorties générées : 1 dossier clients/<slug>/ par entreprise ===
+# Briefs, decks, PDF et contexte sont du travail local (régénérables, données client).
+# Le repo reste un TEMPLATE vierge ; chaque collaborateur génère le sien.
+clients/*
+!clients/.gitkeep
+
+# === Fiches prospects = données de travail ; on ne versionne que le gabarit ===
+knowledge/prospects/*.md
+!knowledge/prospects/_TEMPLATE.md
+
+# === Dossier briefs/ historique (remplacé par clients/<slug>/) ===
+briefs/
+
+# === PDF exportés, où qu'ils soient ===
+*.pdf

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prismia — Dashboard RDV1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script>(function(){try{var t=localStorage.getItem('prismia-theme')||((window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+</head>
+<body>
+<div class="orb-wrap"><div class="ring"></div><div class="orb"></div></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="glyph"></span>
+      <div><b>PRISMIA</b><div class="tag">Génération · premier rendez-vous</div></div>
+    </div>
+    <div class="actions">
+      <span class="status"><span class="dot"></span>LOCAL · SANS CLÉ</span>
+      <button class="btn" id="theme-toggle" title="Basculer clair / sombre" aria-label="Basculer le thème"></button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tab active" data-tab="creation">Nouvelle présentation</div>
+    <div class="tab" data-tab="knowledge">Knowledge entreprise</div>
+    <div class="tab" data-tab="scenarios">Scénarios RDV1</div>
+    <div class="tab" data-tab="decks">Decks créés</div>
+  </nav>
+
+  <!-- PAGE 1 — CRÉATION -->
+  <section data-view="creation">
+    <div class="panel">
+      <h3>1 · Société &amp; scénario</h3>
+      <label>Société</label>
+      <input type="text" id="company" list="companies" placeholder="Nom de l'entreprise (ou choisis une existante)…" autocomplete="off">
+      <datalist id="companies"></datalist>
+      <label>Site web de l'entreprise <span class="opt">optionnel — accélère l'enrichissement</span></label>
+      <input type="text" id="website" placeholder="https://… (sert à la recherche de contexte)" autocomplete="off">
+      <label>Date du RDV <span class="opt">si connue — sinon l'agent la demandera</span></label>
+      <input type="date" id="rdvdate" autocomplete="off">
+      <label>Type de présentation (RDV1)</label>
+      <div class="types" id="types"></div>
+    </div>
+
+    <div class="panel">
+      <h3>2 · Transcript du cold-call <span class="opt">optionnel</span></h3>
+      <div class="microw">
+        <button class="micbig" id="mic-call">🎙</button>
+        <div><div class="micl" id="micl-call">Dicter (Web Speech)</div>
+          <div class="hint" style="margin:0">Dicte, ou colle le transcript de ton premier cold-call.</div></div>
+      </div>
+      <textarea id="transcript" rows="5" placeholder="Transcript du cold-call (dicté ou collé)…"></textarea>
+    </div>
+
+    <div class="panel">
+      <h3>3 · Contexte additionnel <span class="opt">ce que tu juges pertinent</span></h3>
+      <div class="microw">
+        <button class="micbig" id="mic-ctx">🎙</button>
+        <div><div class="micl" id="micl-ctx">Dicter (Web Speech)</div>
+          <div class="hint" style="margin:0">Ajoute ce qui est pertinent pour le deck (angle, infos clés…).</div></div>
+      </div>
+      <textarea id="ctxextra" rows="4" placeholder="Contexte additionnel (dicté ou écrit)…"></textarea>
+    </div>
+
+    <div class="panel">
+      <h3>4 · Contexte entreprise <span class="opt">recherche · pris en compte d'office &amp; éditable</span></h3>
+      <p style="color:var(--soft);font-size:13px;margin-bottom:12px">Un agent vérifie l'entreprise et complète le contexte (connaissances + recherche web). Il reste <strong>secondaire</strong> : il ne prend jamais le pas sur ton transcript ni ton contexte additionnel, et reste plus court. Le résultat est <strong>pris en compte d'office</strong> pour la génération — édite-le librement, c'est enregistré automatiquement.</p>
+      <div class="row" style="gap:10px;margin-bottom:10px">
+        <button class="btn" id="enrich">Enrichir le contexte</button>
+      </div>
+      <div id="enrich-status" class="enrich-status"></div>
+      <textarea id="ctxcompany" rows="8" placeholder="Le contexte entreprise (vérifié + enrichi) apparaîtra ici — éditable…"></textarea>
+    </div>
+
+    <div class="panel">
+      <h3>5 · Fichiers de contexte <span class="opt">facultatif</span></h3>
+      <input type="file" id="files" multiple><div class="files" id="filelist"></div>
+    </div>
+
+    <div class="panel">
+      <h3>6 · Lancer l'agent</h3>
+      <p style="color:var(--soft);font-size:13px;margin-bottom:14px">Écrit le brief dans <code>clients/&lt;slug&gt;/</code> puis lance l'agent <strong>prismia-deck</strong> directement dans ta session Claude. S'il manque des infos, il te les demande ci-dessous ; sinon il génère le deck dans le même dossier (ta session, sans clé).</p>
+      <button class="btn btn-primary" id="compose">Composer le brief &amp; lancer l'agent →</button>
+    </div>
+
+    <div class="panel hidden" id="agent-panel">
+      <h3>7 · Agent prismia-deck <span class="opt">fenêtre sur ta session Claude</span></h3>
+      <div class="chat" id="chat"></div>
+      <div class="chat-files" id="chat-files"></div>
+      <div class="chat-input">
+        <button class="micbig" id="mic-chat" title="Dicter (Web Speech)">🎙</button>
+        <button class="micbig" id="chat-attach-btn" title="Joindre des fichiers (lus par l'agent)">📎</button>
+        <input type="file" id="chat-attach" multiple hidden>
+        <textarea id="chatbox" rows="2" placeholder="Réponds à l'agent — dicte, joins des fichiers (Entrée pour envoyer)…"></textarea>
+        <button class="btn btn-primary" id="chat-send">Répondre</button>
+      </div>
+      <div class="row hidden" id="agent-actions" style="margin-top:14px;gap:8px;align-items:center"></div>
+    </div>
+  </section>
+
+  <!-- PAGE 2 — KNOWLEDGE -->
+  <section data-view="knowledge" class="hidden">
+    <div class="section-title">Connaissance de l'entreprise</div>
+    <div class="kfiles" id="kfiles"></div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 id="ktitle" style="margin:0">Sélectionne un fichier</h3>
+        <div class="row" style="gap:8px">
+          <button class="btn" id="kedit-btn" disabled>Éditer</button>
+          <button class="btn" id="kcancel" style="display:none">Annuler</button>
+          <button class="btn btn-primary" id="ksave" style="display:none">Enregistrer</button>
+        </div>
+      </div>
+      <div class="md" id="kview"><div class="empty">Choisis un fichier de connaissance.</div></div>
+      <textarea id="kedit" rows="22" spellcheck="false" style="display:none"></textarea>
+    </div>
+  </section>
+
+  <!-- PAGE — SCÉNARIOS RDV1 -->
+  <section data-view="scenarios" class="hidden">
+    <div class="section-title">Scénarios RDV1 · structure &amp; orchestration de l'agent</div>
+    <p style="color:var(--soft);font-size:13px;margin:-4px 0 14px">Ces fiches décrivent la structure de chaque deck par scénario et orchestrent l'agent à la génération. Le <strong>socle</strong> est commun ; chaque scénario précise l'angle et où ça s'adapte à l'entreprise (🔒 fixe · 🎯 adapté).</p>
+    <div class="kfiles" id="sfiles"></div>
+    <div class="panel">
+      <h3 id="stitle" style="margin:0 0 4px">Sélectionne un scénario</h3>
+      <div class="md" id="sview"><div class="empty">Choisis une fiche : socle, découverte, pilote ou cartographie.</div></div>
+    </div>
+  </section>
+
+  <!-- PAGE 3 — DECKS -->
+  <section data-view="decks" class="hidden">
+    <div class="section-title">Decks créés</div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+</div>
+
+<!-- modal de validation -->
+<div class="modal" id="confirmModal"><div class="box">
+  <h3 id="confirmTitle">Confirmer</h3>
+  <p id="confirmMsg" style="color:var(--soft);font-size:14px;margin:8px 0 4px"></p>
+  <div class="row" style="margin-top:18px;justify-content:flex-end">
+    <button class="btn" id="confirmCancel">Annuler</button>
+    <button class="btn btn-primary" id="confirmOk">Confirmer</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Ce dossier reçoit 1 sous-dossier par entreprise : clients/<slug>/
+#   <slug>-<type>.md (brief) · <slug>-<type>.html (deck) · <slug>-<type>.pdf · contexte-entreprise.md · context/
+# Le contenu généré est volontairement git-ignoré (voir .gitignore) : le repo reste un template vierge.

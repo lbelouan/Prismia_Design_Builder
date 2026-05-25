@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<!--
+  TEMPLATE - Premier rendez-vous Prismia (mono-fichier, auto-contenu).
+  Genere depuis le handoff Claude Design r1-prismia. Panneau Tweaks retire.
+  L'orchestrateur prismia-deck CLONE ce fichier et COMPOSE les slides (socle fixe + bloc flexible,
+  nombre variable) par brief. La boule se positionne dynamiquement, nav-total se calcule seul.
+  Contenu actuel = exemple Aledia (a remplacer par client).
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prismia — Structurer l'IA au-delà de la production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Fraunces:ital,wght@0,400;1,400&family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Syne:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+/* ============================
+   PRISMIA — Premium deck
+   Palette violette, verre, 3D
+   ============================ */
+
+:root {
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --bg-0: #050310;
+  --bg-1: #0a0719;
+  --bg-2: #110b26;
+  --surface: rgba(28, 22, 56, 0.55);
+  --surface-strong: rgba(38, 30, 72, 0.78);
+  --surface-glass: rgba(255, 255, 255, 0.035);
+  --line: rgba(155, 124, 255, 0.16);
+  --line-bright: rgba(176, 145, 255, 0.42);
+  --text: #f3effb;
+  --text-soft: #b3a8d4;
+  --text-dim: #7a6f9e;
+
+  --violet: #9b7cff;
+  --violet-bright: #b89bff;
+  --violet-deep: #6a4ee0;
+  --violet-soft: rgba(155, 124, 255, 0.14);
+  --violet-line: rgba(155, 124, 255, 0.4);
+  --magenta: #e07cff;
+  --gold: #ffd28a;
+
+  --radius-card: 18px;
+  --radius-pill: 999px;
+
+  --shadow-glass: 0 30px 80px -30px rgba(124, 88, 255, 0.45),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+/* ============================
+   STAGE — fixed 1920x1080, scaled
+   ============================ */
+.stage-wrap {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at 30% 0%, #1a0f3a 0%, #07041a 55%, #050310 100%);
+  overflow: hidden;
+}
+.stage {
+  width: 1920px; height: 1080px;
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+  transform-origin: center center;
+  background:
+    radial-gradient(ellipse 1200px 800px at 80% -10%, rgba(155,124,255,0.16), transparent 60%),
+    radial-gradient(ellipse 900px 700px at -10% 110%, rgba(224,124,255,0.10), transparent 60%),
+    #07041a;
+  overflow: hidden;
+  border-radius: 0;
+}
+.stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(155,124,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(155,124,255,0.05) 1px, transparent 1px);
+  background-size: 88px 88px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 40%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+.stage::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 60%, transparent 0%, rgba(0,0,0,0.5) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Noise overlay */
+.noise {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  z-index: 2;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.6  0 0 0 0 0.5  0 0 0 0 0.9  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Three.js canvas */
+#three-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* CSS Fallback when WebGL is unavailable */
+.three-fallback {
+  position: absolute;
+  width: 720px;
+  height: 720px;
+  left: 62%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 3;
+  pointer-events: none;
+  display: none;
+  transition: all 1s cubic-bezier(.4,.0,.2,1);
+}
+.tf-blob {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 25%, #fff 0%, transparent 20%),
+    radial-gradient(circle at 70% 35%, rgba(255,255,255,0.5) 0%, transparent 25%),
+    radial-gradient(circle at 35% 70%, var(--magenta) 0%, transparent 45%),
+    radial-gradient(circle at 70% 80%, var(--violet-deep) 0%, transparent 55%),
+    conic-gradient(from 220deg, var(--violet) 0%, var(--violet-bright) 25%, var(--magenta) 50%, var(--violet-deep) 75%, var(--violet) 100%);
+  filter: blur(2px) saturate(120%);
+  box-shadow:
+    inset -40px -40px 80px rgba(0,0,0,0.4),
+    inset 30px 30px 60px rgba(255,255,255,0.15),
+    0 30px 80px rgba(155,124,255,0.45),
+    0 0 120px rgba(224,124,255,0.35);
+  animation: tfMorph 14s ease-in-out infinite, tfFloat 9s ease-in-out infinite;
+  transform-origin: center;
+}
+.tf-blob::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.4), transparent 40%);
+  mix-blend-mode: screen;
+}
+@keyframes tfMorph {
+  0%,100% { border-radius: 52% 48% 55% 45% / 50% 53% 47% 50%; }
+  33% { border-radius: 45% 55% 48% 52% / 55% 45% 55% 45%; }
+  66% { border-radius: 55% 45% 52% 48% / 47% 53% 50% 50%; }
+}
+@keyframes tfFloat {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(8deg); }
+}
+
+.tf-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(184, 155, 255, 0.18);
+  pointer-events: none;
+}
+.tf-ring-1 { inset: 8%; border-style: dashed; animation: tfSpin 30s linear infinite; }
+.tf-ring-2 { inset: 0%; border-color: rgba(184, 155, 255, 0.1); animation: tfSpin 60s linear infinite reverse; }
+.tf-ring-3 {
+  inset: 22%;
+  border: 1px solid rgba(224, 124, 255, 0.15);
+  box-shadow: 0 0 24px rgba(155,124,255,0.2), inset 0 0 24px rgba(155,124,255,0.1);
+  animation: tfSpin 45s linear infinite;
+}
+@keyframes tfSpin { to { transform: rotate(360deg); } }
+
+.tf-shine {
+  position: absolute;
+  inset: 30% 50% 50% 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.7), transparent 60%);
+  filter: blur(8px);
+  opacity: 0.5;
+  animation: tfShine 6s ease-in-out infinite;
+}
+@keyframes tfShine {
+  0%,100% { transform: translate(0,0) scale(1); opacity: 0.5; }
+  50% { transform: translate(40px, -30px) scale(1.2); opacity: 0.8; }
+}
+
+/* ============================
+   SLIDES
+   ============================ */
+.slides {
+  position: absolute; inset: 0;
+  z-index: 5;
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 88px 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(24px) scale(0.995);
+  transition: opacity 0.55s cubic-bezier(.4,.0,.2,1), transform 0.7s cubic-bezier(.4,.0,.2,1);
+  pointer-events: none;
+}
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  transition-delay: 0.05s;
+}
+.slide.prev {
+  transform: translateY(-24px) scale(1.005);
+}
+
+/* Stagger reveal */
+.slide.active .reveal {
+  animation: revealUp 0.7s cubic-bezier(.2,.7,.2,1) backwards;
+}
+.slide.active .reveal:nth-child(1) { animation-delay: 0.12s; }
+.slide.active .reveal:nth-child(2) { animation-delay: 0.20s; }
+.slide.active .reveal:nth-child(3) { animation-delay: 0.28s; }
+.slide.active .reveal:nth-child(4) { animation-delay: 0.36s; }
+.slide.active .reveal:nth-child(5) { animation-delay: 0.44s; }
+.slide.active .reveal:nth-child(6) { animation-delay: 0.52s; }
+.slide.active .reveal:nth-child(7) { animation-delay: 0.6s; }
+.slide.active .reveal:nth-child(8) { animation-delay: 0.68s; }
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* ============================
+   HEADER / FOOTER chrome
+   ============================ */
+.slide-chrome-top, .slide-chrome-bot {
+  position: absolute;
+  left: 120px; right: 120px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 6;
+}
+.slide-chrome-top { top: 44px; }
+.slide-chrome-bot { bottom: 44px; }
+
+.brand-mark {
+  display: inline-flex; align-items: center; gap: 14px;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+.brand-mark .glyph {
+  width: 22px; height: 22px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+.brand-mark .glyph::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, var(--violet) 0%, var(--magenta) 25%, var(--violet-bright) 50%, var(--violet-deep) 75%, var(--violet) 100%);
+  filter: blur(0.5px);
+  animation: spinSlow 14s linear infinite;
+}
+.brand-mark .glyph::after {
+  content: "";
+  position: absolute; inset: 5px;
+  border-radius: 50%;
+  background: var(--bg-1);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+.brand-mark span { letter-spacing: 0.18em; font-weight: 600; }
+
+.chapter-tag {
+  display: inline-flex; gap: 18px; align-items: center;
+}
+.chapter-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 12px var(--violet); }
+
+/* ============================
+   TYPOGRAPHY
+   ============================ */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--violet-bright);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.eyebrow::before {
+  content: "";
+  width: 36px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--violet-bright));
+}
+
+h1.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 156px;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+h1.display .it { font-style: italic; color: var(--violet-bright); font-weight: 400; }
+h1.display .grad {
+  background: linear-gradient(180deg, #fff 0%, var(--violet-bright) 60%, var(--violet) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+h2.title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 84px;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 32px;
+}
+h2.title .it { font-style: italic; color: var(--violet-bright); }
+h2.title .accent { color: var(--violet-bright); }
+
+h3 {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+p, li, .body {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-soft);
+  font-weight: 400;
+}
+.lead {
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--text);
+  max-width: 980px;
+  font-weight: 400;
+}
+strong { color: var(--text); font-weight: 600; }
+.text-violet { color: var(--violet-bright); }
+.text-soft { color: var(--text-soft); }
+.text-dim { color: var(--text-dim); }
+.mono { font-family: var(--font-mono); }
+
+/* ============================
+   GLASS CARD primitive
+   ============================ */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-glass);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.35s, transform 0.4s cubic-bezier(.4,.0,.2,1);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mx,30%) var(--my,0%), rgba(184, 155, 255, 0.18), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+.glass:hover { border-color: var(--line-bright); transform: translateY(-3px); }
+.glass:hover::before { opacity: 1; }
+
+.glass .corner-mark {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 18px; height: 18px;
+  border-top: 1px solid var(--violet-bright);
+  border-right: 1px solid var(--violet-bright);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.glass:hover .corner-mark { opacity: 1; transform: translate(-2px, 2px); }
+
+/* ============================
+   COVER
+   ============================ */
+.cover {
+  padding: 100px 120px 130px;
+  justify-content: flex-start;
+}
+.cover > .reveal:nth-child(2) {
+  margin-top: 90px;
+}
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 50px;
+  padding-top: 36px;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+.cover-meta .label {
+  font-family: var(--font-mono);
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--text-dim); margin-bottom: 12px;
+}
+.cover-meta .value {
+  font-size: 19px; color: var(--text); font-weight: 500;
+  font-family: var(--font-display);
+}
+
+/* ============================
+   GRIDS
+   ============================ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.two-col.wide-left { grid-template-columns: 1.15fr 0.85fr; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+
+/* ============================
+   MATURITY BARS
+   ============================ */
+.maturity {
+  background: var(--surface);
+  backdrop-filter: blur(28px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 28px 30px;
+  display: flex; flex-direction: column; gap: 14px;
+  transition: border-color 0.3s;
+}
+.maturity:hover { border-color: var(--line-bright); }
+.maturity-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.maturity-head h3 { margin: 0; font-size: 18px; }
+.maturity-score {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--violet-bright);
+  letter-spacing: 0.05em;
+}
+.maturity .track {
+  height: 8px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
+  position: relative;
+}
+.maturity .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet-deep), var(--violet), var(--violet-bright));
+  border-radius: 4px;
+  width: 0;
+  transition: width 1.4s cubic-bezier(.2,.7,.2,1) 0.3s;
+  box-shadow: 0 0 24px var(--violet);
+  position: relative;
+}
+.maturity .fill::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: shimmer 2.6s linear infinite;
+}
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.maturity .fill.dim {
+  background: linear-gradient(90deg, #6e4f9c, var(--magenta));
+  box-shadow: 0 0 24px rgba(224,124,255,0.5);
+}
+.maturity .desc { font-size: 14px; color: var(--text-soft); line-height: 1.5; }
+
+/* ============================
+   CHECKLIST
+   ============================ */
+.checklist {
+  list-style: none;
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+.checklist li {
+  font-size: 17px;
+  color: var(--text);
+  display: flex; gap: 14px; align-items: flex-start;
+  line-height: 1.5;
+}
+.checklist li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 8px; height: 8px;
+  margin-top: 9px;
+  border-radius: 2px;
+  background: var(--violet-bright);
+  box-shadow: 0 0 8px var(--violet);
+  transform: rotate(45deg);
+}
+
+/* ============================
+   CARDS (diagnostic)
+   ============================ */
+.diag-card {
+  background: linear-gradient(180deg, rgba(38,30,72,0.55), rgba(20,15,42,0.4));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 32px 30px 30px;
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  display: flex; flex-direction: column;
+  transition: all 0.4s cubic-bezier(.4,.0,.2,1);
+}
+.diag-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,0%), rgba(184,155,255,0.2), transparent 50%);
+  opacity: 0; transition: opacity 0.4s;
+}
+.diag-card:hover { transform: translateY(-4px); border-color: var(--line-bright); }
+.diag-card:hover::before { opacity: 1; }
+
+.diag-card .num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 60px;
+  line-height: 1;
+  color: var(--violet-bright);
+  opacity: 0.7;
+  margin-bottom: 18px;
+}
+.diag-card .tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--violet-bright);
+  margin-bottom: 14px;
+}
+.diag-card h3 { font-size: 28px; font-family: var(--font-display); font-weight: 400; }
+.diag-card p { margin-top: 12px; flex: 1; }
+
+/* ============================
+   PULL QUOTE
+   ============================ */
+.pull {
+  border-left: 2px solid var(--violet-bright);
+  padding: 18px 0 18px 30px;
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1.25;
+  color: var(--text);
+  font-weight: 400;
+  max-width: 1300px;
+  margin: 28px 0;
+  font-style: italic;
+  position: relative;
+}
+.pull::before {
+  content: "“";
+  position: absolute;
+  left: -20px; top: -20px;
+  font-size: 90px;
+  color: var(--violet);
+  opacity: 0.25;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* ============================
+   TABS (territoires)
+   ============================ */
+.tabs-rail {
+  display: flex;
+  gap: 0;
+  margin-bottom: 36px;
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+.tab-btn {
+  background: transparent;
+  border: 0;
+  color: var(--text-dim);
+  padding: 18px 28px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: color 0.25s;
+  margin-bottom: -1px;
+  position: relative;
+}
+.tab-btn:hover { color: var(--text-soft); }
+.tab-btn.active { color: var(--violet-bright); }
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--violet-bright), transparent);
+  box-shadow: 0 0 12px var(--violet);
+  animation: tabIn 0.35s ease;
+}
+@keyframes tabIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeUp 0.45s cubic-bezier(.2,.7,.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.terr-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 48px; align-items: start;
+}
+.terr-detail h3 {
+  font-family: var(--font-display);
+  font-size: 56px; font-weight: 400; color: var(--text);
+  margin-bottom: 16px; line-height: 1;
+}
+.terr-detail h3 .it { font-style: italic; color: var(--violet-bright); }
+.terr-detail .sub {
+  font-family: var(--font-mono);
+  font-size: 12px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 18px;
+}
+.terr-detail p { font-size: 19px; color: var(--text); margin-bottom: 24px; line-height: 1.55; }
+
+.uc-stack { display: flex; flex-direction: column; gap: 14px; }
+.uc-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 22px;
+  cursor: default;
+  transition: all 0.3s cubic-bezier(.4,.0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.uc-card::before {
+  content: "";
+  position: absolute; inset: 0; left: -100%;
+  background: linear-gradient(90deg, transparent, rgba(184,155,255,0.08), transparent);
+  transition: left 0.6s ease;
+}
+.uc-card:hover { border-color: var(--violet-line); transform: translateX(6px); }
+.uc-card:hover::before { left: 100%; }
+.uc-card .ut { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.uc-card .ut .arrow { color: var(--violet-bright); margin-right: 10px; }
+.uc-card .ud { font-size: 14px; color: var(--text-soft); line-height: 1.55; }
+
+/* ============================
+   CASES
+   ============================ */
+.cases-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 18px;
+  margin-top: 28px;
+  height: 540px;
+}
+.case-tile {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 28px;
+  display: flex; flex-direction: column; gap: 14px;
+  transition: all 0.4s cubic-bezier(.4,.0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.case-tile:hover { border-color: var(--line-bright); transform: translateY(-3px); }
+.case-tile.hero {
+  grid-row: span 2;
+  background: linear-gradient(135deg, rgba(155,124,255,0.18) 0%, rgba(28,22,56,0.6) 70%);
+  border-color: var(--violet-line);
+  justify-content: space-between;
+}
+.case-tile.hero::after {
+  content: "";
+  position: absolute;
+  top: -30%; right: -20%;
+  width: 60%; height: 80%;
+  background: radial-gradient(circle, rgba(184,155,255,0.35), transparent 65%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+.case-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.case-name {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 400; color: var(--text);
+}
+.case-tile.hero .case-name { font-size: 48px; color: var(--violet-bright); }
+.case-sector {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-dim);
+  text-align: right;
+}
+.case-desc { font-size: 14px; color: var(--text-soft); line-height: 1.55; flex: 1; }
+.case-tile.hero .case-desc { font-size: 16px; color: var(--text); }
+.case-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  align-self: flex-start;
+  padding: 7px 14px;
+  background: rgba(155,124,255,0.18);
+  border: 1px solid var(--violet-line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--violet-bright);
+  letter-spacing: 0.05em;
+}
+.case-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--violet-bright); box-shadow: 0 0 8px var(--violet-bright);
+  animation: blink 1.6s ease infinite;
+}
+@keyframes blink { 50% { opacity: 0.4; } }
+
+.clients-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 20px;
+}
+.client-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+  transition: all 0.25s;
+}
+.client-chip:hover { border-color: var(--violet-line); background: var(--surface-strong); }
+.client-chip .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--violet-bright); box-shadow: 0 0 6px var(--violet);
+}
+.client-chip .sect {
+  color: var(--text-dim); font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+/* ============================
+   DIFF CHIPS
+   ============================ */
+.diff-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 32px;
+}
+.diff-chip {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex; align-items: center; gap: 18px;
+  font-size: 16px; color: var(--text);
+  transition: all 0.3s cubic-bezier(.4,.0,.2,1);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+.diff-chip:hover {
+  border-color: var(--violet-line);
+  background: var(--surface-strong);
+  transform: translateY(-2px);
+}
+.diff-chip .icon {
+  width: 42px; height: 42px; flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--violet-deep), var(--violet));
+  color: white;
+  display: grid; place-items: center;
+  font-family: var(--font-mono);
+  font-size: 13px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(106, 78, 224, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* ============================
+   CTA CARD
+   ============================ */
+.cta-card {
+  background: linear-gradient(135deg, rgba(155,124,255,0.18), rgba(224,124,255,0.06) 60%, rgba(28,22,56,0.4));
+  border: 1px solid var(--violet-line);
+  border-radius: var(--radius-card);
+  padding: 32px 36px;
+  position: relative;
+  overflow: hidden;
+}
+.cta-card::after {
+  content: ""; position: absolute;
+  top: -50%; right: -10%;
+  width: 50%; height: 200%;
+  background: radial-gradient(ellipse, rgba(184,155,255,0.2), transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+.cta-card h3 {
+  color: var(--violet-bright);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.cta-card p { color: var(--text); font-size: 17px; line-height: 1.55; max-width: 1300px; }
+
+/* ============================
+   TIMELINE
+   ============================ */
+.timeline {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 36px;
+  position: relative;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 32px; left: 30px; right: 30px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--violet-deep), var(--violet-bright), var(--magenta));
+  opacity: 0.5;
+}
+.tl-step {
+  padding: 0 28px;
+  position: relative;
+  cursor: pointer;
+}
+.tl-step:first-child { padding-left: 0; }
+.tl-step:last-child { padding-right: 0; }
+
+.tl-step .node {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--bg-1);
+  border: 2px solid var(--violet);
+  display: grid; place-items: center;
+  font-family: var(--font-display);
+  font-weight: 400; font-style: italic;
+  color: var(--violet-bright);
+  font-size: 26px;
+  margin-bottom: 26px;
+  position: relative;
+  z-index: 2;
+  transition: all 0.35s cubic-bezier(.4,.0,.2,1);
+}
+.tl-step .node::before {
+  content: "";
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--violet);
+  opacity: 0.3;
+  transition: all 0.35s;
+}
+.tl-step:hover .node {
+  background: linear-gradient(135deg, var(--violet), var(--violet-deep));
+  color: white;
+  box-shadow: 0 0 36px rgba(155,124,255,0.7);
+  transform: scale(1.05);
+}
+.tl-step:hover .node::before {
+  inset: -10px;
+  opacity: 0.6;
+}
+.tl-step .phase {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--violet-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-bottom: 10px;
+}
+.tl-step h3 { font-size: 26px; font-family: var(--font-display); font-weight: 400; margin-bottom: 16px; }
+.tl-step ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.tl-step ul li {
+  font-size: 15px; color: var(--text-soft);
+  padding-left: 18px;
+  position: relative; line-height: 1.5;
+}
+.tl-step ul li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 10px;
+  width: 8px; height: 1px;
+  background: var(--violet-bright);
+  opacity: 0.7;
+}
+
+/* ============================
+   PILLARS (adoption)
+   ============================ */
+.pillar {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 28px 26px;
+  transition: all 0.35s cubic-bezier(.4,.0,.2,1);
+  position: relative;
+  overflow: hidden;
+  min-height: 240px;
+  display: flex; flex-direction: column;
+}
+.pillar:hover { border-color: var(--magenta); transform: translateY(-4px); background: var(--surface-strong); }
+.pillar .pnum {
+  font-family: var(--font-display);
+  font-size: 56px; font-weight: 400; font-style: italic;
+  color: var(--magenta);
+  line-height: 1;
+  margin-bottom: 22px;
+}
+.pillar h3 { font-size: 19px; margin-bottom: 12px; line-height: 1.25; }
+.pillar p { font-size: 14px; color: var(--text-soft); line-height: 1.55; }
+
+/* ============================
+   STATS
+   ============================ */
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 28px 26px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s;
+}
+.stat:hover { border-color: var(--violet-line); transform: translateY(-3px); }
+.stat::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 40px; height: 2px;
+  background: var(--violet-bright);
+  box-shadow: 0 0 12px var(--violet);
+}
+.stat .value {
+  font-family: var(--font-display);
+  font-size: 80px;
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--text);
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+}
+.stat .value .it { font-style: italic; color: var(--violet-bright); }
+.stat .label {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+
+/* ============================
+   QUESTIONS
+   ============================ */
+.q-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 32px;
+}
+.q-item {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex; gap: 20px; align-items: flex-start;
+  transition: all 0.3s;
+  cursor: default;
+}
+.q-item:hover { border-color: var(--violet-line); background: var(--surface-strong); transform: translateX(4px); }
+.q-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--violet-bright);
+  flex-shrink: 0;
+  padding-top: 4px;
+  letter-spacing: 0.1em;
+}
+.q-t { font-size: 16px; color: var(--text); font-weight: 600; margin-bottom: 6px; }
+.q-d { font-size: 13px; color: var(--text-soft); line-height: 1.55; }
+
+/* ============================
+   NAV MINI — bottom-right prev/next
+   ============================ */
+.nav-mini {
+  position: fixed;
+  bottom: 32px;
+  right: 36px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 22px;
+  background: rgba(20, 14, 40, 0.7);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.nav-counter {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+  min-width: 56px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.nav-counter #nav-current {
+  color: var(--violet-bright);
+  font-weight: 600;
+}
+.nav-counter .nav-sep {
+  margin: 0 4px;
+  color: var(--text-dim);
+}
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-soft);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.25s cubic-bezier(.4,.0,.2,1);
+}
+.nav-btn:hover {
+  background: var(--violet-soft);
+  color: var(--violet-bright);
+  border-color: var(--violet-line);
+  transform: translateY(-1px);
+}
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.nav-btn svg { width: 16px; height: 16px; }
+.nav-btn-primary {
+  background: linear-gradient(135deg, var(--violet), var(--violet-deep));
+  color: white;
+  border-color: var(--violet);
+  box-shadow: 0 6px 18px rgba(155, 124, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.nav-btn-primary:hover {
+  background: linear-gradient(135deg, var(--violet-bright), var(--violet));
+  color: white;
+  border-color: var(--violet-bright);
+  box-shadow: 0 8px 24px rgba(184, 155, 255, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* ============================
+   PROGRESS BAR
+   ============================ */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--violet-deep), var(--violet-bright), var(--magenta));
+  transition: width 0.5s cubic-bezier(.4,.0,.2,1);
+  z-index: 100;
+  box-shadow: 0 0 16px var(--violet);
+}
+
+/* ============================
+   SCENE PANELS (cover decorations)
+   ============================ */
+.scene-3d-slot {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.scene-3d-slot.right {
+  top: 50%; right: -60px;
+  transform: translateY(-50%);
+  width: 900px; height: 900px;
+}
+.scene-3d-slot.corner-tr {
+  top: 80px; right: 100px;
+  width: 360px; height: 360px;
+}
+
+/* ============================
+   FLOATING ORBS (decor)
+   ============================ */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 2;
+  animation: floaty 18s ease-in-out infinite;
+}
+.orb.a { width: 500px; height: 500px; background: var(--violet); top: -200px; left: -150px; }
+.orb.b { width: 400px; height: 400px; background: var(--magenta); bottom: -150px; right: -100px; animation-delay: -9s; }
+@keyframes floaty {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(40px, -60px); }
+}
+
+/* ============================
+   MARQUEE FOR CHAPTER LABEL on cover
+   ============================ */
+.cover-eyebrow-big {
+  display: flex; align-items: center; gap: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.24em;
+  color: var(--violet-bright);
+  margin-bottom: 40px;
+}
+.cover-eyebrow-big .line { flex: 0 0 60px; height: 1px; background: var(--violet-bright); }
+
+/* ============================
+   ARROW (small)
+   ============================ */
+.arrow-right {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* ============================
+   ANIMATED COUNTERS
+   ============================ */
+.counter-num { display: inline-block; font-variant-numeric: tabular-nums; }
+
+/* ============================
+   SECTION DIVIDER (cover bottom)
+   ============================ */
+.cover-bottom-strip {
+  display: flex; align-items: center; gap: 24px;
+  font-family: var(--font-mono);
+  font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.cover-bottom-strip .line { flex: 1; height: 1px; background: var(--line); }
+
+
+/* ============================
+   TWEAKS — typo & couleurs (au clic)
+   ============================ */
+.tweaks{position:fixed;bottom:32px;left:36px;z-index:60;font-family:var(--font-mono);}
+.tweaks-toggle{width:44px;height:44px;border-radius:50%;background:rgba(20,14,40,0.7);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);border:1px solid var(--line);color:var(--text-soft);cursor:pointer;font-size:15px;font-weight:600;transition:all .25s;box-shadow:0 20px 50px -20px rgba(0,0,0,0.6);}
+.tweaks-toggle:hover{color:var(--violet-bright);border-color:var(--violet-line);}
+.tweaks-panel{position:absolute;bottom:56px;left:0;width:248px;max-height:64vh;overflow-y:auto;padding:16px;background:rgba(20,14,40,0.9);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 70px -25px rgba(0,0,0,0.7);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .25s,transform .25s;}
+.tweaks.open .tweaks-panel{opacity:1;transform:translateY(0);pointer-events:auto;}
+.tweaks-row{display:flex;flex-direction:column;gap:8px;}
+.tweaks-row+.tweaks-row{margin-top:16px;}
+.tweaks-label{font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--text-dim);}
+.tweaks-opts{display:flex;flex-wrap:wrap;gap:6px;}
+.tweaks-opts button{padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--text-soft);font-family:var(--font-mono);font-size:11px;cursor:pointer;transition:all .2s;}
+.tweaks-opts button:hover{border-color:var(--violet-line);color:var(--text);}
+.tweaks-opts button.active{background:var(--violet-soft);border-color:var(--violet-line);color:var(--violet-bright);}
+@media print{.tweaks{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress-bar"></div>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <div class="orb a"></div>
+    <div class="orb b"></div>
+    <canvas id="three-canvas" width="1920" height="1080"></canvas>
+    <div id="three-fallback" class="three-fallback">
+      <div class="tf-blob"></div>
+      <div class="tf-ring tf-ring-1"></div>
+      <div class="tf-ring tf-ring-2"></div>
+      <div class="tf-ring tf-ring-3"></div>
+      <div class="tf-shine"></div>
+    </div>
+    <div class="noise"></div>
+
+    <div class="slides">
+
+      <!-- ====================================================
+           SLIDE 01 — COVER
+           ==================================================== -->
+      <section class="slide cover active" data-label="Couverture">
+        <div class="reveal cover-eyebrow-big">
+          <span class="line"></span>
+          <span>Note de cadrage stratégique · 02</span>
+          <span class="line" style="flex:1"></span>
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+        </div>
+
+        <div class="reveal" style="max-width: 1500px;">
+          <h1 class="display">
+            Structurer <span class="it">l'IA</span><br>
+            <span class="grad">au-delà</span> de votre<br>
+            chaîne de <span class="it">production.</span>
+          </h1>
+        </div>
+
+        <div class="reveal cover-meta" style="padding: 136px 0px 0px">
+          <div>
+            <div class="label">Préparé pour</div>
+            <div class="value">Aledia — direction générale</div>
+          </div>
+          <div>
+            <div class="label">Présenté par</div>
+            <div class="value">Timéo Lejeune · Prismia</div>
+          </div>
+          <div>
+            <div class="label">Date</div>
+            <div class="value">Vendredi 22 mai 2026</div>
+          </div>
+          <div>
+            <div class="label">Secteur</div>
+            <div class="value">Semi-conducteurs</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 02 — Ce que nous avons compris
+           ==================================================== -->
+      <section class="slide" data-label="Contexte Aledia">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>01 / Contexte Aledia</span>
+        </div>
+
+        <div class="reveal eyebrow">Ce que nous avons retenu</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Une maturité IA <span class="it">forte</span> sur la production,<br>
+          encore <span class="accent">à structurer</span> sur le reste.
+        </h2>
+
+        <div class="reveal two-col mt-md" style="margin-top: 24px;">
+          <div>
+            <p class="lead" style="margin-bottom: 28px;">
+              Aledia utilise l'IA depuis plusieurs années sur les sujets techniques pointus de fabrication. Mais sur le reste — commercial, administratif, gestion d'entreprise — l'IA reste à l'état d'initiatives individuelles.
+            </p>
+            <ul class="checklist">
+              <li>IA <strong>très avancée</strong> côté production / R&amp;D fabrication</li>
+              <li>Stack <strong>Microsoft</strong> en place : Copilot disponible</li>
+              <li>Initiatives <strong>bottom-up</strong> sur le reste, non structurées</li>
+              <li>Quelques employés <strong>militants</strong> de l'IA, par conviction</li>
+              <li>Direction ouverte mais <strong>sans engagement formalisé</strong></li>
+            </ul>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div class="maturity">
+              <div class="maturity-head">
+                <h3>Production / Fabrication</h3>
+                <span class="maturity-score">●●●●○ &nbsp; 85%</span>
+              </div>
+              <div class="track"><div class="fill" data-width="85"></div></div>
+              <div class="desc">Cas d'usage matures, intégrés au quotidien des équipes techniques.</div>
+            </div>
+            <div class="maturity">
+              <div class="maturity-head">
+                <h3>Commercial &amp; Marketing</h3>
+                <span class="maturity-score" style="color: var(--magenta)">●●○○○ &nbsp; 30%</span>
+              </div>
+              <div class="track"><div class="fill dim" data-width="30"></div></div>
+              <div class="desc">Initiatives ponctuelles, pas de système structuré.</div>
+            </div>
+            <div class="maturity">
+              <div class="maturity-head">
+                <h3>Administratif &amp; Gestion</h3>
+                <span class="maturity-score" style="color: var(--magenta)">●○○○○ &nbsp; 18%</span>
+              </div>
+              <div class="track"><div class="fill dim" data-width="18"></div></div>
+              <div class="desc">Terrain quasi-vierge — fort potentiel de gains rapides.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 03 — Diagnostic
+           ==================================================== -->
+      <section class="slide" data-label="Diagnostic">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>02 / Diagnostic</span>
+        </div>
+
+        <div class="reveal eyebrow">Le constat à partager</div>
+        <h2 class="reveal title" style="max-width: 1600px;">
+          Le bottom-up <span class="it">crée la traction</span>.<br>
+          Sans cadre, il <span class="accent">freine la valeur</span>.
+        </h2>
+
+        <div class="reveal pull">
+          Les bonnes idées existent déjà chez Aledia.<br>
+          Ce qui manque, ce n'est pas l'envie — c'est la <em style="color: var(--violet-bright)">cartographie</em> qui dit où concentrer l'effort, et le <em style="color: var(--violet-bright)">cadre</em> qui transforme l'initiative individuelle en valeur d'entreprise.
+        </div>
+
+        <div class="reveal three-col" style="margin-top: 36px;">
+          <div class="diag-card">
+            <div class="num">01</div>
+            <div class="tag">→ Aujourd'hui</div>
+            <h3>Initiatives dispersées</h3>
+            <p>Quelques employés portent l'IA par conviction. La valeur reste enfermée dans des silos individuels, non transférable.</p>
+          </div>
+          <div class="diag-card">
+            <div class="num">02</div>
+            <div class="tag">→ Le risque</div>
+            <h3>Effort sans priorisation</h3>
+            <p>Sans diagnostic des processus réels, l'énergie se disperse sur des cas à faible ROI. La direction n'a pas la lecture nécessaire pour arbitrer.</p>
+          </div>
+          <div class="diag-card">
+            <div class="num">03</div>
+            <div class="tag">→ La cible</div>
+            <h3>Stratégie cohérente</h3>
+            <p>Une feuille de route priorisée par impact / effort, capitalisant sur les champions internes déjà identifiés et alignée à la direction.</p>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 04 — Trois territoires IA (tabs)
+           ==================================================== -->
+      <section class="slide" data-label="Territoires IA">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>03 / Territoires IA</span>
+        </div>
+
+        <div class="reveal eyebrow">Trois territoires à fort levier — au-delà de la production</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Là où nous voyons les <span class="it">gains rapides</span><br>
+          chez nos clients industriels.
+        </h2>
+
+        <div class="reveal tabs-rail">
+          <button class="tab-btn active" data-tab="t1">01 / Market Intelligence</button>
+          <button class="tab-btn" data-tab="t2">02 / Gestion commerciale</button>
+          <button class="tab-btn" data-tab="t3">03 / Gestion documentaire</button>
+        </div>
+
+        <div class="reveal">
+          <div class="tab-content active" id="t1">
+            <div class="terr-grid">
+              <div class="terr-detail">
+                <div class="sub">Territoire 01</div>
+                <h3>Market <span class="it">Intelligence</span></h3>
+                <p>Faire produire à l'IA des études de marché en profondeur, dont les sorties sont directement actionnables par les équipes commerciales et stratégiques.</p>
+                <ul class="checklist">
+                  <li>Veille concurrentielle automatisée et structurée</li>
+                  <li>Détection des signaux faibles sur les clients-clés</li>
+                  <li>Cartographie des opportunités marché en continu</li>
+                </ul>
+              </div>
+              <div class="uc-stack">
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Étude marché « actionable »</div>
+                  <div class="ud">Un livrable commercial directement utilisable, pas un PDF de 80 pages qu'on ne lit pas.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Mapping concurrentiel temps réel</div>
+                  <div class="ud">Mise à jour automatisée à partir de sources publiques et propriétaires.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Sourcing prospects qualifiés</div>
+                  <div class="ud">Identification automatique des cibles correspondant à votre ICP.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="t2">
+            <div class="terr-grid">
+              <div class="terr-detail">
+                <div class="sub">Territoire 02</div>
+                <h3>Gestion <span class="it">commerciale</span></h3>
+                <p>L'IA prend en charge la production des devis, la réponse aux appels d'offre, le forecasting, et entretient le CRM à partir des activités historiques.</p>
+                <ul class="checklist">
+                  <li>Devis générés à partir de configurations clients</li>
+                  <li>Réponse à appels d'offre semi-automatisée</li>
+                  <li>Forecasts plus précis, basés sur l'historique réel</li>
+                  <li>CRM mis à jour automatiquement</li>
+                </ul>
+              </div>
+              <div class="uc-stack">
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Devis intelligents</div>
+                  <div class="ud">Pré-remplis à partir des grilles tarifaires et des configurations type.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Appels d'offre assistés</div>
+                  <div class="ud">Réutilisation des AO passés, génération de premières versions de réponse.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>CRM auto-alimenté</div>
+                  <div class="ud">Mise à jour des fiches contacts depuis les échanges, calls, emails.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Plan de démarchage optimisé</div>
+                  <div class="ud">Identification des meilleures séquences de relance par segment.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="t3">
+            <div class="terr-grid">
+              <div class="terr-detail">
+                <div class="sub">Territoire 03</div>
+                <h3>Gestion <span class="it">documentaire</span></h3>
+                <p>Capitaliser sur la documentation technique et l'historique des tickets pour bâtir des agents IA qui répondent — à l'interne ou aux clients.</p>
+                <ul class="checklist">
+                  <li>Agent IA branché sur la documentation technique</li>
+                  <li>Service client augmenté par capitalisation des tickets passés</li>
+                  <li>Mémoire d'entreprise réactivable à tout moment</li>
+                </ul>
+              </div>
+              <div class="uc-stack">
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Knowledge base interne</div>
+                  <div class="ud">L'IA indexe vos documents techniques et répond aux questions internes.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Support client automatisé</div>
+                  <div class="ud">Capitalisation sur tickets et threads historiques pour répondre aux nouvelles demandes.</div>
+                </div>
+                <div class="uc-card">
+                  <div class="ut"><span class="arrow">→</span>Réactivation projets passés</div>
+                  <div class="ud">Le bureau d'études retrouve instantanément les choix techniques de projets archivés.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 05 — Études de cas
+           ==================================================== -->
+      <section class="slide" data-label="Études de cas">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>04 / Études de cas</span>
+        </div>
+
+        <div class="reveal eyebrow">Études de cas — industriels &amp; semi-conducteurs</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Ce que nous avons déjà <span class="it">livré</span><br>
+          chez vos pairs.
+        </h2>
+
+        <div class="reveal cases-grid">
+          <div class="case-tile hero">
+            <div>
+              <span class="case-pill">Cas le plus proche</span>
+              <div class="case-meta" style="margin-top: 20px;">
+                <div class="case-name">Exosens</div>
+                <div class="case-sector">Semi-conducteurs<br>Défense</div>
+              </div>
+              <div class="case-desc" style="margin-top: 16px;">
+                Acteur des composants opto-électroniques pour la défense. Programme IA structurant, démarré par un diagnostic des processus business support, suivi du déploiement de cas d'usage priorisés sur le commercial, la gestion documentaire et la veille.
+                <br><br>
+                <strong style="color: var(--violet-bright)">Même secteur. Même point de départ : production IA mature, support business à structurer.</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">Nicomatic</div>
+              <div class="case-sector">Connectique<br>aéronautique</div>
+            </div>
+            <div class="case-desc">PME industrielle de connecteurs, accompagnement sur la structuration IA business support.</div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">Delmon Group</div>
+              <div class="case-sector">Aéronautique</div>
+            </div>
+            <div class="case-desc">Cartographie IA et déploiement de cas d'usage sur les fonctions transverses.</div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">Alma Group</div>
+              <div class="case-sector">Énergies — SAV</div>
+            </div>
+            <div class="case-desc">Système IA traitant <strong style="color: var(--violet-bright)">52 %</strong> des tickets SAV avec fiabilité <strong style="color: var(--violet-bright)">97 %</strong> à partir des conversations historiques.</div>
+          </div>
+
+          <div class="case-tile">
+            <div class="case-meta">
+              <div class="case-name">STACI · bpost</div>
+              <div class="case-sector">Logistique<br>multi-sites</div>
+            </div>
+            <div class="case-desc">Pilote 15 collaborateurs des départements qualité — diagnostic complet en 4 semaines.</div>
+          </div>
+        </div>
+
+        <div class="reveal clients-row">
+          <div class="client-chip"><span class="dot"></span>Daher <span class="sect">Aéronautique</span></div>
+          <div class="client-chip"><span class="dot"></span>Safran <span class="sect">Défense</span></div>
+          <div class="client-chip"><span class="dot"></span>Brittany Ferries <span class="sect">Transport</span></div>
+          <div class="client-chip"><span class="dot"></span>Degauquier &amp; Partner <span class="sect">Financier</span></div>
+          <div class="client-chip"><span class="dot"></span>Ydeo <span class="sect">Industrie</span></div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 06 — Différenciateur
+           ==================================================== -->
+      <section class="slide" data-label="Différenciateur">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>05 / Différenciateur</span>
+        </div>
+
+        <div class="reveal eyebrow">Notre différenciateur</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Notre force n'est pas la techno,<br>
+          c'est <span class="it">la qualité de la donnée</span><br>
+          qu'on récupère sur vos <span class="accent">processus réels</span>.
+        </h2>
+
+        <p class="reveal lead" style="margin-top: 24px;">
+          C'est elle qui permet de cadrer, de prioriser, et de ne déployer que ce qui crée de la valeur — y compris quand vos processus ne sont pas documentés.
+        </p>
+
+        <div class="reveal diff-grid">
+          <div class="diff-chip"><span class="icon">01</span>Tâches macro &amp; micro</div>
+          <div class="diff-chip"><span class="icon">02</span>Temps · fréquence · déclencheurs</div>
+          <div class="diff-chip"><span class="icon">03</span>Outils réellement utilisés</div>
+          <div class="diff-chip"><span class="icon">04</span>Pénibilité ressentie</div>
+          <div class="diff-chip"><span class="icon">05</span>Maturité IA individuelle</div>
+          <div class="diff-chip"><span class="icon">06</span>Points de douleur</div>
+        </div>
+
+        <div class="reveal cta-card" style="margin-top: 36px;">
+          <h3>Pourquoi ça compte pour Aledia</h3>
+          <p>Vous avez déjà des employés qui « font de l'IA ». Notre méthode capte cette intelligence diffuse, l'organise, et la transforme en feuille de route d'entreprise — sans nier les initiatives existantes, en les capitalisant.</p>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 07 — Méthodologie en 3 phases
+           ==================================================== -->
+      <section class="slide" data-label="Méthodologie">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>06 / Méthodologie</span>
+        </div>
+
+        <div class="reveal eyebrow">Notre méthodologie d'implémentation</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Le diagnostic en <span class="it">3 phases</span><br>
+          — de la collecte terrain à la feuille de route.
+        </h2>
+
+        <div class="reveal timeline">
+          <div class="tl-step">
+            <div class="node">1</div>
+            <div class="phase">Phase 01</div>
+            <h3>Lancement &amp; collecte</h3>
+            <ul>
+              <li>Kick-off &amp; signature du DPA</li>
+              <li>Déploiement de la plateforme d'entretiens</li>
+              <li>Échange avec l'Agent IA (45 min à 1h15)</li>
+              <li>Validation par chaque interviewé</li>
+            </ul>
+          </div>
+          <div class="tl-step">
+            <div class="node">2</div>
+            <div class="phase">Phase 02</div>
+            <h3>Analyse &amp; traitement</h3>
+            <ul>
+              <li>Consolidation IA &amp; détection des récurrences</li>
+              <li>Qualification : faisabilité, ROI, complexité</li>
+              <li>Benchmark des solutions du marché</li>
+              <li>Business cases chiffrés</li>
+            </ul>
+          </div>
+          <div class="tl-step">
+            <div class="node">3</div>
+            <div class="phase">Phase 03</div>
+            <h3>Restitution &amp; stratégie</h3>
+            <ul>
+              <li>Cartographie complète &amp; points de friction</li>
+              <li>Feuille de route impact / effort</li>
+              <li>Atelier de restitution direction</li>
+              <li>Accès permanent au portail d'audit</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reveal cta-card" style="margin-top: 40px;">
+          <h3>~ 4 semaines, calé sur votre calendrier</h3>
+          <p>Diagnostic complet livré en 4 semaines pour un périmètre de 15 à 30 collaborateurs. Le tarif est dégressif au-delà — chaque doublement du périmètre cartographié réduit de 10 % le coût par personne.</p>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 08 — Embarquer les équipes
+           ==================================================== -->
+      <section class="slide" data-label="Adoption">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>07 / Adoption</span>
+        </div>
+
+        <div class="reveal eyebrow">Embarquer les équipes — particulièrement clé chez Aledia</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Capitaliser sur vos <span class="it">champions internes</span>,<br>
+          pas les <span class="accent">ignorer</span>.
+        </h2>
+
+        <p class="reveal lead" style="margin-top: 24px;">
+          Vous avez déjà des employés qui poussent l'IA. Notre méthode commence par les détecter formellement et leur donner un cadre — au lieu de leur opposer un programme top-down.
+        </p>
+
+        <div class="reveal four-col" style="margin-top: 40px;">
+          <div class="pillar">
+            <div class="pnum">01</div>
+            <h3>Tout le monde interviewé</h3>
+            <p>Personne ne subit le changement, tout le monde y participe.</p>
+          </div>
+          <div class="pillar">
+            <div class="pnum">02</div>
+            <h3>Montée en compétences sur mesure</h3>
+            <p>Plans personnalisés selon la maturité IA réelle — pas de formation générique.</p>
+          </div>
+          <div class="pillar">
+            <div class="pnum">03</div>
+            <h3>Champions internes</h3>
+            <p>Nous identifions les relais déjà engagés sur l'IA et leur donnons un rôle officiel.</p>
+          </div>
+          <div class="pillar">
+            <div class="pnum">04</div>
+            <h3>Co-construction</h3>
+            <p>Les collaborateurs challengent et s'approprient les cas d'usage. Ce sont leurs idées.</p>
+          </div>
+        </div>
+
+        <p class="reveal mono text-soft" style="font-size: 14px; margin-top: 32px;">
+          → Profils seniors en conduite du changement (ex-cabinets de conseil) mobilisables à la carte et inclus dans l'offre.
+        </p>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 09 — Prismia + livrables
+           ==================================================== -->
+      <section class="slide" data-label="Prismia">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>08 / Prismia</span>
+        </div>
+
+        <div class="reveal eyebrow">Pourquoi Prismia</div>
+        <h2 class="reveal title">
+          Un partenaire,<br>
+          pas un <span class="it">fournisseur d'IA</span>.
+        </h2>
+
+        <div class="reveal four-col" style="margin-top: 24px;">
+          <div class="stat">
+            <div class="value"><span class="counter-num" data-target="3">0</span></div>
+            <div class="label">Années d'accompagnement IA</div>
+          </div>
+          <div class="stat">
+            <div class="value">~<span class="counter-num" data-target="60">0</span></div>
+            <div class="label">ETI accompagnées</div>
+          </div>
+          <div class="stat">
+            <div class="value">~<span class="counter-num" data-target="150">0</span></div>
+            <div class="label">Projets menés</div>
+          </div>
+          <div class="stat">
+            <div class="value"><span class="counter-num" data-target="3000">0</span></div>
+            <div class="label">Développeurs &amp; experts data / ML mobilisables</div>
+          </div>
+        </div>
+
+        <div class="reveal three-col" style="margin-top: 40px;">
+          <div class="diag-card">
+            <div class="tag">→ Plateforme propriétaire</div>
+            <h3>Cartographie automatisée</h3>
+            <p>Notre outil de diagnostic IA — l'avantage décisif sur les cabinets traditionnels qui font du PowerPoint.</p>
+          </div>
+          <div class="diag-card">
+            <div class="tag">→ Modèle aligné</div>
+            <h3>Forfait + indexation KPI</h3>
+            <p>Forfait fixe sur le diagnostic, marge indexée sur les KPI réellement atteints en déploiement.</p>
+          </div>
+          <div class="diag-card">
+            <div class="tag">→ Votre propriété</div>
+            <h3>Code &amp; IP côté client</h3>
+            <p>Hébergement open source ou on-premise. Aucun verrou fournisseur. Pas d'entraînement sur vos données.</p>
+          </div>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 10 — Questions / prochaines étapes
+           ==================================================== -->
+      <section class="slide" data-label="Prochaines étapes">
+        <div class="slide-chrome-top">
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+          <span class="chapter-tag"><span class="dot"></span>09 / Prochaines étapes</span>
+        </div>
+
+        <div class="reveal eyebrow">Ce que nous devons explorer ensemble</div>
+        <h2 class="reveal title" style="max-width: 1500px;">
+          Les questions pour <span class="it">cadrer un pilote</span><br>
+          adapté à Aledia.
+        </h2>
+
+        <div class="reveal q-grid">
+          <div class="q-item">
+            <div class="q-num">→ Q.01</div>
+            <div>
+              <div class="q-t">Périmètre pilote</div>
+              <div class="q-d">Quelle équipe ou département pour démarrer ? Commercial ? Bureau d'études ? Service client interne ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.02</div>
+            <div>
+              <div class="q-t">Champions internes</div>
+              <div class="q-d">Qui sont les employés qui portent déjà l'IA ? Peut-on les associer dès le diagnostic ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.03</div>
+            <div>
+              <div class="q-t">Stack Microsoft</div>
+              <div class="q-d">Quels usages actuels de Copilot ? Quelles données restent inaccessibles à l'écosystème en place ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.04</div>
+            <div>
+              <div class="q-t">Sponsorship direction</div>
+              <div class="q-d">Qui porte le sujet IA en interne, au niveau direction ? Quelles attentes formalisées ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.05</div>
+            <div>
+              <div class="q-t">KPI cibles</div>
+              <div class="q-d">Quels indicateurs feraient passer le sujet IA d'« exploratoire » à « stratégique » côté direction ?</div>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-num">→ Q.06</div>
+            <div>
+              <div class="q-t">Calendrier &amp; contraintes data</div>
+              <div class="q-d">Quel horizon souhaité pour un premier livrable ? Quelles contraintes sur la donnée (confidentialité, défense, etc.) ?</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal cta-card" style="margin-top: 28px;">
+          <h3>Notre proposition concrète</h3>
+          <p>Un pilote de cartographie IA sur 15 à 30 collaborateurs des fonctions business support, livré en 4 semaines. À l'issue : une feuille de route priorisée, des quick wins immédiats exploitant déjà Copilot, et l'identification formelle des champions internes.</p>
+        </div>
+
+        <div class="slide-chrome-bot">
+          <span>Aledia — Cartographie &amp; structuration IA</span>
+          <span>22.05.2026</span>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           SLIDE 11 — Closing
+           ==================================================== -->
+      <section class="slide cover" data-label="Merci">
+        <div class="reveal cover-eyebrow-big">
+          <span class="line"></span>
+          <span>Merci · Le phare dans le brouillard de l'IA</span>
+          <span class="line" style="flex:1"></span>
+          <span class="brand-mark"><span class="glyph"></span><span>PRISMIA</span></span>
+        </div>
+
+        <div class="reveal" style="max-width: 1500px;">
+          <h1 class="display" style="font-size: 132px;">
+            Avançons,<br>
+            <span class="grad">à votre</span> <span class="it">rythme.</span>
+          </h1>
+        </div>
+
+        <div class="reveal cover-meta">
+          <div>
+            <div class="label">Contact</div>
+            <div class="value">Timéo Lejeune</div>
+          </div>
+          <div>
+            <div class="label">Email</div>
+            <div class="value">timeo.lejeune@prismia.be</div>
+          </div>
+          <div>
+            <div class="label">Prismia</div>
+            <div class="value">Conseil &amp; implémentation IA — Belgique</div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.slides -->
+  </div><!-- /.stage -->
+</div><!-- /.stage-wrap -->
+
+<!-- ============================
+     NAV — prev/next in bottom-right
+     ============================ -->
+<!-- TWEAKS — typo & couleurs (au clic) -->
+<div class="tweaks" id="tweaks">
+  <button class="tweaks-toggle" id="tweaks-toggle" aria-label="Personnaliser le design">Aa</button>
+  <div class="tweaks-panel" id="tweaks-panel">
+    <div class="tweaks-row">
+      <span class="tweaks-label">Typographie</span>
+      <div class="tweaks-opts" id="tw-typo">
+        <button data-typo="editorial">Éditorial</button>
+        <button data-typo="fraunces">Fraunces</button>
+        <button data-typo="playfair">Playfair</button>
+        <button data-typo="cormorant">Cormorant</button>
+        <button data-typo="space">Grotesk</button>
+        <button data-typo="syne">Syne</button>
+        <button data-typo="bricolage">Bricolage</button>
+      </div>
+    </div>
+    <div class="tweaks-row">
+      <span class="tweaks-label">Couleurs</span>
+      <div class="tweaks-opts" id="tw-color">
+        <button data-color="violet">Violet</button>
+        <button data-color="cobalt">Cobalt</button>
+        <button data-color="emerald">Émeraude</button>
+        <button data-color="crimson">Crimson</button>
+        <button data-color="ambre">Ambre</button>
+        <button data-color="magenta">Magenta</button>
+        <button data-color="cyan">Cyan</button>
+        <button data-color="mono">Mono</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-mini">
+  <div class="nav-counter"><span id="nav-current">01</span><span class="nav-sep">/</span><span id="nav-total">11</span></div>
+  <button class="nav-btn" id="btn-prev" aria-label="Précédent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="nav-btn nav-btn-primary" id="btn-next" aria-label="Suivant">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>
+
+
+<!-- ============================
+     THREE.JS
+     ============================ -->
+<script>
+/* Décor 3D = BOULE CSS animée (#three-fallback), repositionnée par slide. Aucune dépendance WebGL.
+   Positionnement DYNAMIQUE : marche pour un nombre de slides VARIABLE (plus figé à 11).
+   Cover = boule prominente · closing = prominente · slides de contenu = positions périphériques
+   variées qui cyclent (la boule se balade), synchronisées au changement de slide (transition CSS). */
+(function(){
+  var canvas=document.getElementById('three-canvas'); if(canvas) canvas.style.display='none';
+  var fb=document.getElementById('three-fallback'); if(fb) fb.style.display='block';
+  var N=document.querySelectorAll('.slide').length;
+  var SPOTS=[{x:84,y:26},{x:18,y:74},{x:82,y:78},{x:20,y:28},{x:86,y:50},{x:16,y:72},{x:80,y:24},{x:22,y:50},{x:82,y:80},{x:20,y:26}];
+  function posFor(i){
+    if(i<=1) return {x:62,y:50,s:1.0,op:.95};
+    if(i>=N) return {x:60,y:50,s:1.1,op:.95};
+    var sp=SPOTS[(i-2)%SPOTS.length];
+    return {x:sp.x,y:sp.y,s:.5,op:.38};
+  }
+  window.__threeScene={ setSlide:function(i){if(!fb)return;var p=posFor(i);fb.style.left=p.x+'%';fb.style.top=p.y+'%';fb.style.transform='translate(-50%,-50%) scale('+p.s+')';fb.style.opacity=p.op;}, setConfig:function(){} };
+  var a=[].slice.call(document.querySelectorAll('.slide')).findIndex(function(s){return s.classList.contains('active');})+1; if(a) window.__threeScene.setSlide(a);
+})();
+</script>
+<script>
+// ============================
+// Prismia — deck logic
+// Navigation, scaling, interactions
+// ============================
+(function () {
+  const stage = document.querySelector('.stage');
+  const wrap = document.querySelector('.stage-wrap');
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const progressBar = document.getElementById('progress-bar');
+  const navCurrent = document.getElementById('nav-current');
+  const navTotal = document.getElementById('nav-total');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  let idx = 0;
+
+  if (navTotal) navTotal.textContent = String(total).padStart(2, '0');
+
+  // ============================
+  // Fit stage to viewport
+  // ============================
+  function fitStage() {
+    const rect = wrap.getBoundingClientRect();
+    const sx = rect.width / 1920;
+    const sy = rect.height / 1080;
+    const s = Math.min(sx, sy);
+    stage.style.setProperty('--stage-scale', s);
+  }
+  window.addEventListener('resize', fitStage);
+  fitStage();
+
+  // ============================
+  // Navigation
+  // ============================
+  function update() {
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev');
+      if (i === idx) s.classList.add('active');
+      else if (i < idx) s.classList.add('prev');
+    });
+    progressBar.style.width = ((idx + 1) / total * 100) + '%';
+
+    if (navCurrent) navCurrent.textContent = String(idx + 1).padStart(2, '0');
+    if (btnPrev) btnPrev.disabled = idx === 0;
+    if (btnNext) btnNext.disabled = idx === total - 1;
+
+    // Notify 3D scene
+    if (window.__threeScene) window.__threeScene.setSlide(idx + 1);
+
+    // Notify speaker notes
+    try { window.parent.postMessage({ slideIndexChanged: idx }, '*'); } catch (e) {}
+
+    // Animate bars, counters on entry
+    runSlideAnimations(slides[idx]);
+  }
+
+  function goTo(i) { idx = Math.max(0, Math.min(total - 1, i)); update(); }
+  function next() { if (idx < total - 1) { idx++; update(); } }
+  function prev() { if (idx > 0) { idx--; update(); } }
+
+  btnNext.addEventListener('click', next);
+  btnPrev.addEventListener('click', prev);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End') goTo(total - 1);
+  });
+
+  // ============================
+  // Tabs (territoires slide)
+  // ============================
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      const container = btn.closest('.slide');
+      container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const el = container.querySelector('#' + target);
+      if (el) el.classList.add('active');
+    });
+  });
+
+  // ============================
+  // Mouse-tracked spotlight on cards
+  // ============================
+  document.querySelectorAll('.glass, .diag-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const mx = ((e.clientX - r.left) / r.width) * 100;
+      const my = ((e.clientY - r.top) / r.height) * 100;
+      card.style.setProperty('--mx', mx + '%');
+      card.style.setProperty('--my', my + '%');
+    });
+  });
+
+  // ============================
+  // Per-slide animations
+  // ============================
+  function runSlideAnimations(slide) {
+    // Maturity bars: reset width to 0 then set to target
+    slide.querySelectorAll('.maturity .fill').forEach(f => {
+      const target = f.dataset.width || '0';
+      f.style.width = '0%';
+      // force reflow
+      void f.offsetWidth;
+      f.style.width = target + '%';
+    });
+    // Counters
+    slide.querySelectorAll('.counter-num').forEach(el => {
+      const target = parseFloat(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      const prefix = el.dataset.prefix || '';
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const duration = 1400;
+      const start = performance.now();
+      function tick(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const v = target * eased;
+        el.textContent = prefix + v.toFixed(decimals).replace('.', ',') + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+        else el.textContent = prefix + (decimals > 0 ? target.toFixed(decimals).replace('.', ',') : target.toLocaleString('fr-FR')) + suffix;
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Init
+  update();
+})();
+
+</script>
+
+
+<script>
+(function(){
+  var TYPO={
+    editorial:{d:"'Instrument Serif','Times New Roman',serif",u:"'Inter',sans-serif"},
+    fraunces:{d:"'Fraunces',serif",u:"'Inter',sans-serif"},
+    playfair:{d:"'Playfair Display',serif",u:"'Inter',sans-serif"},
+    cormorant:{d:"'Cormorant Garamond',serif",u:"'Inter',sans-serif"},
+    space:{d:"'Space Grotesk',sans-serif",u:"'Space Grotesk',sans-serif"},
+    syne:{d:"'Syne',sans-serif",u:"'Inter',sans-serif"},
+    bricolage:{d:"'Bricolage Grotesque',sans-serif",u:"'Inter',sans-serif"}
+  };
+  var COLOR={
+    violet:{'--violet':'#9b7cff','--violet-bright':'#b89bff','--violet-deep':'#6a4ee0','--magenta':'#e07cff','--violet-soft':'rgba(155,124,255,0.14)','--violet-line':'rgba(155,124,255,0.4)','--line':'rgba(155,124,255,0.16)','--line-bright':'rgba(184,155,255,0.42)'},
+    cobalt:{'--violet':'#6c8cff','--violet-bright':'#9bb2ff','--violet-deep':'#3f53d9','--magenta':'#4fb6ff','--violet-soft':'rgba(108,140,255,0.14)','--violet-line':'rgba(108,140,255,0.4)','--line':'rgba(108,140,255,0.16)','--line-bright':'rgba(155,178,255,0.42)'},
+    emerald:{'--violet':'#3fd39a','--violet-bright':'#86e6c0','--violet-deep':'#1f9e72','--magenta':'#46d6c0','--violet-soft':'rgba(63,211,154,0.14)','--violet-line':'rgba(63,211,154,0.4)','--line':'rgba(63,211,154,0.16)','--line-bright':'rgba(134,230,192,0.42)'},
+    crimson:{'--violet':'#ff6b81','--violet-bright':'#ff9aa9','--violet-deep':'#d83a55','--magenta':'#ff7ab0','--violet-soft':'rgba(255,107,129,0.14)','--violet-line':'rgba(255,107,129,0.4)','--line':'rgba(255,107,129,0.16)','--line-bright':'rgba(255,154,169,0.42)'},
+    ambre:{'--violet':'#ffb454','--violet-bright':'#ffd28a','--violet-deep':'#e08a2a','--magenta':'#ff8f5c','--violet-soft':'rgba(255,180,84,0.14)','--violet-line':'rgba(255,180,84,0.4)','--line':'rgba(255,180,84,0.16)','--line-bright':'rgba(255,210,138,0.42)'},
+    magenta:{'--violet':'#e07cff','--violet-bright':'#f0a8ff','--violet-deep':'#b048d9','--magenta':'#ff6bd0','--violet-soft':'rgba(224,124,255,0.14)','--violet-line':'rgba(224,124,255,0.4)','--line':'rgba(224,124,255,0.16)','--line-bright':'rgba(240,168,255,0.42)'},
+    cyan:{'--violet':'#3fd0d6','--violet-bright':'#8ae8ec','--violet-deep':'#1f97a6','--magenta':'#5ce0c8','--violet-soft':'rgba(63,208,214,0.14)','--violet-line':'rgba(63,208,214,0.4)','--line':'rgba(63,208,214,0.16)','--line-bright':'rgba(138,232,236,0.42)'},
+    mono:{'--violet':'#9aa3c0','--violet-bright':'#c2c9e0','--violet-deep':'#6b7494','--magenta':'#aab0c8','--violet-soft':'rgba(154,163,192,0.14)','--violet-line':'rgba(154,163,192,0.4)','--line':'rgba(154,163,192,0.16)','--line-bright':'rgba(194,201,224,0.42)'}
+  };
+  var root=document.documentElement;
+  function setActive(wrap,attr,val){document.querySelectorAll('#'+wrap+' button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-'+attr)===val);});}
+  function applyTypo(k){var t=TYPO[k];if(!t)return;root.style.setProperty('--font-display',t.d);root.style.setProperty('--font-ui',t.u);setActive('tw-typo','typo',k);try{localStorage.setItem('prismia-typo',k);}catch(e){}}
+  function applyColor(k){var c=COLOR[k];if(!c)return;for(var v in c){root.style.setProperty(v,c[v]);}if(window.__threeScene&&window.__threeScene.setConfig){try{window.__threeScene.setConfig({accent:c['--violet-bright'],accent2:c['--magenta']});}catch(e){}}setActive('tw-color','color',k);try{localStorage.setItem('prismia-color',k);}catch(e){}}
+  var tw=document.getElementById('tweaks');
+  document.getElementById('tweaks-toggle').addEventListener('click',function(e){e.stopPropagation();tw.classList.toggle('open');});
+  document.addEventListener('click',function(e){if(!tw.contains(e.target)){tw.classList.remove('open');}});
+  document.querySelectorAll('#tw-typo button').forEach(function(b){b.addEventListener('click',function(){applyTypo(b.getAttribute('data-typo'));});});
+  document.querySelectorAll('#tw-color button').forEach(function(b){b.addEventListener('click',function(){applyColor(b.getAttribute('data-color'));});});
+  var st=null,sc=null;try{st=localStorage.getItem('prismia-typo');sc=localStorage.getItem('prismia-color');}catch(e){}
+  applyTypo(st||'editorial');applyColor(sc||'violet');
+})();
+</script>
+</body>
+</html>

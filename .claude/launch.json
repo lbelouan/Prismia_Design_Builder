@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["dashboard/server.js"],
+      "port": 4317
+    },
+    {
+      "name": "template-r1",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "4320", "--directory", "templates"],
+      "port": 4320
+    }
+  ]
+}
