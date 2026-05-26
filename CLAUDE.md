@@ -12,8 +12,15 @@ production de présentations HTML pour les clients : à partir d'un **brief** (s
 à l'oral puis transcrit), on génère une présentation HTML soignée, **toujours cohérente avec
 la direction artistique (DA)**, et **exportable en PDF**.
 
-- **Périmètre actuel : UNIQUEMENT la présentation de PREMIER RENDEZ-VOUS.**
-  Les autres types de RDV et la mémoire client viendront plus tard — ne pas les construire.
+- **Périmètre actuel : deux familles de présentations.**
+  1. **Premier rendez-vous** — scénarios `r1-*` (découverte / pilote / carto), à **socle de
+     slides fixe** (trame ci-dessous).
+  2. **Rendez-vous de suivi (R2, R3, +)** — scénario `suivi-libre`, à **composition LIBRE** :
+     on **adapte le nombre de slides et leur contenu au contexte** accumulé (RDV précédents,
+     proposition, résultats…). **Aucune trame imposée** ; seul invariant = la DA du template R1.
+     Détail : `scenarios/suivi-libre.md`.
+
+  La mémoire client / CRM reste hors périmètre.
 - **Critère directeur de toutes les décisions : la RAPIDITÉ de delivery du HTML.**
 
 ---
@@ -59,7 +66,7 @@ Projet_templateR1/
 ├── tools/                       # outillage local : export-pdf.mjs (screenshots → PDF, puppeteer-core)
 ├── dashboard/                   # cockpit local (serveur Node + SPA, mode B) — `node dashboard/server.js`
 ├── scenarios/                   # ENCAPSULATION knowledge → slides (visible, racine) :
-│                                #   _socle.md + r1-decouverte/pilote/carto.md
+│                                #   _socle.md + r1-decouverte/pilote/carto.md + suivi-libre.md (R2+ libre)
 └── .claude/skills/              # (caché — convention Claude Code)
     ├── ui-ux-pro-max/           # skill qualité UX/UI (installé v2.5.0)
     └── prismia-deck/SKILL.md    # déclencheur de l'orchestrateur (pointe vers scenarios/)

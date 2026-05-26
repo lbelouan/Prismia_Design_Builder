@@ -15,7 +15,8 @@ const KNOWLEDGE = path.join(ROOT, 'knowledge');
 const SCENARIOS = path.join(ROOT, 'scenarios');
 const PORT = process.env.PORT || 4317;
 
-const TYPES = { 'r1-decouverte': 'R1 Découverte', 'r1-pilote': 'R1 Pilote', 'r1-carto': 'R1 Carto' };
+const TYPES = { 'r1-decouverte': 'R1 Découverte', 'r1-pilote': 'R1 Pilote', 'r1-carto': 'R1 Carto', 'suivi-libre': 'Suivi libre (R2+)' };
+const FREE_TYPES = new Set(['suivi-libre']);   // scénarios à composition libre (pas de socle R1 imposé)
 
 function send(res, code, body, type = 'application/json') {
   res.writeHead(code, { 'Content-Type': type, 'Access-Control-Allow-Origin': '*' });
@@ -73,15 +74,30 @@ function streamClaude(res, prompt, { resume = null, timeoutMs = 600000 } = {}) {
   const args = ['-p', prompt, '--output-format', 'stream-json', '--verbose', '--dangerously-skip-permissions'];
   if (resume) args.push('--resume', resume);
   res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-cache' });
+  const emitErr = msg => { try { res.write(JSON.stringify({ type: 'error', message: msg }) + '\n'); } catch (x) {} };
   let cp;
   try { cp = spawn('claude', args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] }); }
-  catch (e) { res.end(JSON.stringify({ type: 'error', message: 'CLI claude introuvable : ' + e.message }) + '\n'); return; }
-  const to = setTimeout(() => { try { cp.kill('SIGKILL'); } catch (e) {} }, timeoutMs);
+  catch (e) { emitErr('CLI `claude` introuvable (' + e.message + '). Vérifie que Claude Code est installé et dans le PATH du serveur.'); res.end(); return; }
+  let timedOut = false, sawOutput = false;
+  const to = setTimeout(() => { timedOut = true; try { cp.kill('SIGKILL'); } catch (e) {} }, timeoutMs);
   let errbuf = '';
-  cp.stdout.on('data', d => { try { res.write(d); } catch (x) {} });
+  cp.stdout.on('data', d => { sawOutput = true; try { res.write(d); } catch (x) {} });
   cp.stderr.on('data', d => { errbuf += d; });
-  cp.on('error', e => { clearTimeout(to); try { res.write(JSON.stringify({ type: 'error', message: 'claude : ' + e.message }) + '\n'); } catch (x) {} res.end(); });
-  cp.on('close', code => { clearTimeout(to); if (code !== 0) { try { res.write(JSON.stringify({ type: 'error', message: 'claude code ' + code + ' : ' + errbuf.slice(0, 300) }) + '\n'); } catch (x) {} } res.end(); });
+  cp.on('error', e => { clearTimeout(to); emitErr('Lancement de `claude` impossible : ' + e.message); res.end(); });
+  cp.on('close', code => {
+    clearTimeout(to);
+    const err = errbuf.trim();
+    if (timedOut) {
+      emitErr(`Délai dépassé (${Math.round(timeoutMs / 1000)} s) : la génération a été interrompue avant la fin. Relance, ou réponds à l'agent pour reprendre.` + (err ? `\nDernière sortie : ${err.slice(-500)}` : ''));
+    } else if (code !== 0) {
+      let m = `L'agent \`claude\` s'est arrêté en erreur (code ${code}).`;
+      if (err) m += `\nDétail : ${err.slice(-700)}`;
+      if (!sawOutput) m += `\nAucune sortie produite — causes fréquentes : CLI non authentifié, quota épuisé, ou \`claude\` absent du PATH.`;
+      m += `\n(Logs complets dans le terminal où tourne \`node dashboard/server.js\`.)`;
+      emitErr(m);
+    }
+    res.end();
+  });
 }
 
 /* ---- Export PDF d'un deck (screenshots de chaque slide → PDF) via tools/export-pdf.mjs ---- */
@@ -124,13 +140,28 @@ const server = http.createServer(async (req, res) => {
         const type = TYPES[b.type] ? b.type : '';
         const scen = type ? `scenarios/${type}.md` : 'scenarios/<type du brief>.md';
         const deckPath = bp.replace(/\.md$/, '.html');   // même dossier/base que le brief : clients/<slug>/<slug>-<type>.html
-        prompt = `Projet Prismia — génération d'un deck de PREMIER RENDEZ-VOUS${type ? ' (scénario : ' + type + ')' : ''}. Active l'orchestrateur prismia-deck pour le brief \`${bp}\`.\n`
-          + `Suis IMPÉRATIVEMENT : (a) la STRUCTURE du scénario dans \`${scen}\` ; (b) le socle commun \`scenarios/_socle.md\` (DA = boule 3D CSS + violet/aubergine, template figé, 4 compteurs Prismia fixes) ; (c) la knowledge \`knowledge/*.md\`.\n`
-          + `Le brief peut contenir une section « Contexte entreprise (recherche — SECONDAIRE) » : utilise-la seulement en complément, sans qu'elle prenne JAMAIS le pas sur le transcript et le contexte additionnel de Timeo.\n`
-          + `DATE DU RDV : elle doit figurer sur la cover. Si le brief ne la précise pas (champ \`rdv_date\`) et qu'elle n'est pas mentionnée dans le transcript/contexte, DEMANDE-la systématiquement dans la gate avant de générer.\n`
-          + `1) Applique d'abord la GATE de complétude (selon le scénario). S'il manque des infos minimales, pose UNE seule salve de questions ciblées et ARRÊTE-toi (ne génère pas encore).\n`
-          + `2) Sinon, génère le deck (clone-and-compose depuis templates/r1-premier-rdv.html, en suivant la structure du scénario) à l'emplacement EXACT \`${deckPath}\` (même dossier que le brief), puis confirme ce chemin.\n`
-          + `Réponds en français, concis ; pas de longs tableaux.`;
+        const interlocLine = `INTERLOCUTEUR : le brief contient une section « Interlocuteur (visio) » (nom + poste de la personne rencontrée). Reporte-le sur la cover « Préparé pour » (ex. « <Nom>, <poste> — <Société> ») pour éviter toute confusion. S'il est marqué non renseigné, DEMANDE-le dans la gate avant de générer.\n`;
+        const dateLine = `DATE DU RDV : elle doit figurer sur la cover. Si le brief ne la précise pas (champ \`rdv_date\`) et qu'elle n'est pas mentionnée dans le contexte, DEMANDE-la systématiquement dans la gate avant de générer.\n`;
+        if (FREE_TYPES.has(type)) {
+          prompt = `Projet Prismia — génération d'un deck de RENDEZ-VOUS DE SUIVI (R2 / R3 / +), scénario à composition LIBRE. Active l'orchestrateur prismia-deck pour le brief \`${bp}\`.\n`
+            + `Lis IMPÉRATIVEMENT : (a) le scénario \`scenarios/suivi-libre.md\` — tu ADAPTES le NOMBRE de slides ET leur contenu au contexte, sans trame imposée ; (b) \`scenarios/_socle.md\` UNIQUEMENT pour le CONTRAT DE DESIGN (boule 3D CSS + violet/aubergine + verre, template figé, 4 compteurs Prismia fixes SI tu inclus une slide Prismia) ; (c) la knowledge \`knowledge/*.md\` à piocher au besoin.\n`
+            + `CONTEXTE PRIORITAIRE : ce RDV de suivi s'appuie sur beaucoup de contexte accumulé. Lis TOUT le brief, la fiche prospect \`knowledge/prospects/<slug>.md\` et les fichiers de \`clients/<slug>/context/\`. La narration et le nombre de slides DOIVENT découler de ce contexte — pas d'un gabarit.\n`
+            + `DESIGN VERROUILLÉ : clone \`templates/r1-premier-rdv.html\`, ne touche JAMAIS au \`<style>\`/\`<script>\`/à la boule/à la nav ; compose uniquement \`<div class="slides">\` en RÉUTILISANT les composants existants (cover, eyebrow/title, two-col, checklist, barres .maturity[data-width], diag-card, tabs/territoires, cases-grid, diff-chip, cta-card, timeline, pillar, stat/counter, q-grid). N'invente AUCUNE nouvelle CSS, aucun style en dur.\n`
+            + `GARDE-FOU PREUVES : en slide « cas », UNIQUEMENT des CLIENTS SIGNÉS (knowledge/case-studies.md) — jamais un prospect.\n`
+            + `NUMÉRO DU RDV : le brief précise \`rdv_no\` (ex. R2, R3) — cadre la narration en conséquence (rappel de l'étape précédente, ce qui a avancé depuis).\n`
+            + interlocLine + dateLine
+            + `1) GATE (suivi) : assure-toi d'avoir (a) où on en est (RDV précédents / ce qui a avancé), (b) l'OBJECTIF de ce RDV, (c) le matériau à présenter. Si l'objectif OU le matériau manque, pose UNE seule salve de questions ciblées et ARRÊTE-toi (ne génère pas encore).\n`
+            + `2) Sinon, compose librement le deck (clone-and-compose) à l'emplacement EXACT \`${deckPath}\`, puis confirme ce chemin.\n`
+            + `Réponds en français, concis ; pas de longs tableaux.`;
+        } else {
+          prompt = `Projet Prismia — génération d'un deck de PREMIER RENDEZ-VOUS${type ? ' (scénario : ' + type + ')' : ''}. Active l'orchestrateur prismia-deck pour le brief \`${bp}\`.\n`
+            + `Suis IMPÉRATIVEMENT : (a) la STRUCTURE du scénario dans \`${scen}\` ; (b) le socle commun \`scenarios/_socle.md\` (DA = boule 3D CSS + violet/aubergine, template figé, 4 compteurs Prismia fixes) ; (c) la knowledge \`knowledge/*.md\`.\n`
+            + `Le brief peut contenir une section « Contexte entreprise (recherche — SECONDAIRE) » : utilise-la seulement en complément, sans qu'elle prenne JAMAIS le pas sur le transcript et le contexte additionnel de Timeo.\n`
+            + interlocLine + dateLine
+            + `1) Applique d'abord la GATE de complétude (selon le scénario). S'il manque des infos minimales, pose UNE seule salve de questions ciblées et ARRÊTE-toi (ne génère pas encore).\n`
+            + `2) Sinon, génère le deck (clone-and-compose depuis templates/r1-premier-rdv.html, en suivant la structure du scénario) à l'emplacement EXACT \`${deckPath}\` (même dossier que le brief), puis confirme ce chemin.\n`
+            + `Réponds en français, concis ; pas de longs tableaux.`;
+        }
         resume = null;
       } else if (b.action === 'reply') {
         if (!resume) return send(res, 400, { error: 'session_id requis' });
@@ -211,7 +242,16 @@ const server = http.createServer(async (req, res) => {
       if (!TYPES[type] || !slug) return send(res, 400, { error: 'type/slug invalides' });
       const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
       const website = String(b.website || '').trim();
+      const contactName = String(b.contact_name || '').trim();
+      const contactRole = String(b.contact_role || '').trim();
       const rdvDate = String(b.rdv_date || '').trim();
+      // Suivi (R2+) : suffixe de fichier `-r<N>` pour ne pas écraser un RDV précédent.
+      let variant = '';
+      if (FREE_TYPES.has(type) && String(b.rdv_no || '').trim()) {
+        const s = slugify(b.rdv_no); variant = /^\d+$/.test(s) ? 'r' + s : s;
+      }
+      const base = variant ? `${slug}-${type}-${variant}` : `${slug}-${type}`;
+      const rdvLabel = /^r\d+$/.test(variant) ? variant.toUpperCase() : variant;
       const ctx = (b.context_files || []).map(f => `  - ${JSON.stringify(f)}`).join('\n') || '  - ';
       const conv = Array.isArray(b.conversation) ? b.conversation : [];
       const convMd = conv.map(m => `**${m.role === 'assistant' ? 'Assistant' : 'Timeo'}** : ${(m.text || '').trim()}`).join('\n\n');
@@ -222,9 +262,13 @@ const server = http.createServer(async (req, res) => {
       const ctxSection = companyCtx
         ? `\n## Contexte entreprise (recherche — SECONDAIRE)\n> Complément vérifié. PRIORITÉ absolue au transcript et au contexte additionnel ci-dessus ; ceci ne sert qu'à compléter, sans jamais dominer.\n\n${companyCtx}\n`
         : '';
-      const md = `---\ntype: ${JSON.stringify(type)}\nclient: ${JSON.stringify(company)}\nslug: ${JSON.stringify(slug)}\n${website ? `website: ${JSON.stringify(website)}\n` : ''}${rdvDate ? `rdv_date: ${JSON.stringify(rdvDate)}\n` : ''}created: ${JSON.stringify(now)}\nstatus: "à générer"\ncontext_files:\n${ctx}\n---\n\n## Transcript du cold-call\n${transcript}\n\n## Contexte additionnel (jugé pertinent par Timeo)\n${b.context_extra || ''}\n${convMd ? `\n## Conversation de cadrage (dashboard)\n${convMd}\n` : ''}${ctxSection}`;
-      fs.writeFileSync(path.join(dir, `${slug}-${type}.md`), md);
-      return send(res, 200, { path: `clients/${slug}/${slug}-${type}.md`, dir: `clients/${slug}`, deck: `clients/${slug}/${slug}-${type}.html`, type_label: TYPES[type] });
+      const contactLine = (contactName || contactRole)
+        ? `- ${[contactName, contactRole].filter(Boolean).join(', ')} — interlocuteur rencontré en visio (à utiliser tel quel sur la cover « Préparé pour »)\n`
+        : '- (interlocuteur non renseigné — à demander dans la gate)\n';
+      const interlocSection = `\n## Interlocuteur (visio)\n${contactLine}`;
+      const md = `---\ntype: ${JSON.stringify(type)}\nclient: ${JSON.stringify(company)}\nslug: ${JSON.stringify(slug)}\n${website ? `website: ${JSON.stringify(website)}\n` : ''}${contactName ? `contact_name: ${JSON.stringify(contactName)}\n` : ''}${contactRole ? `contact_role: ${JSON.stringify(contactRole)}\n` : ''}${rdvLabel ? `rdv_no: ${JSON.stringify(rdvLabel)}\n` : ''}${rdvDate ? `rdv_date: ${JSON.stringify(rdvDate)}\n` : ''}created: ${JSON.stringify(now)}\nstatus: "à générer"\ncontext_files:\n${ctx}\n---\n${interlocSection}\n## Transcript du cold-call\n${transcript}\n\n## Contexte additionnel (jugé pertinent par Timeo)\n${b.context_extra || ''}\n${convMd ? `\n## Conversation de cadrage (dashboard)\n${convMd}\n` : ''}${ctxSection}`;
+      fs.writeFileSync(path.join(dir, `${base}.md`), md);
+      return send(res, 200, { path: `clients/${slug}/${base}.md`, dir: `clients/${slug}`, deck: `clients/${slug}/${base}.html`, type_label: TYPES[type] + (rdvLabel ? ` · ${rdvLabel}` : '') });
     }
     if (p === '/api/knowledge' && req.method === 'GET') {
       return send(res, 200, listMd(KNOWLEDGE).map(f => ({ file: f, title: f.replace('.md', '') })));
