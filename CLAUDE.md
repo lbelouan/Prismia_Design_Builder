@@ -154,7 +154,11 @@ selon l'audio. Les numéros = ordre indicatif, pas une limite.
 4. **Navigation** = une seule pilule `.nav-mini` **en bas à droite** (compteur + prev/next)
    + clavier (← → espace PageUp/Down Home/End). Pas de dock par slide.
 5. **Icônes en SVG ou numéros mono, jamais d'emoji.**
-6. **3D / décor** : une **boule CSS animée** (`#three-fallback` : blob iridescent morphing +
+6. **Aucun tiret long dans le texte des slides.** Jamais de tiret cadratin `—` ni demi-cadratin
+   `–` (ça « fait IA ») — utiliser virgule, deux-points, parenthèse ou deux phrases. Le trait
+   d'union `-` (mots composés) reste OK. S'applique à tout le contenu réécrit, **y compris la
+   méta cover**. Le template de référence en contient : les supprimer en réécrivant.
+7. **3D / décor** : une **boule CSS animée** (`#three-fallback` : blob iridescent morphing +
    anneaux orbitaux + éclat + flottement), repositionnée par slide, **recolorée par le tweak
    Couleurs** (variables CSS). **Aucune dépendance WebGL/Three.js.** (Une variante **prisme
    GLB** a été testée puis **écartée** — choix verrouillé sur la boule.)

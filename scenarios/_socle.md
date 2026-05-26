@@ -44,6 +44,14 @@ positionne dynamiquement, `nav-total` se calcule seul.
 Parler **ROI métier, pas techno** (cf. `knowledge/company.md` § Philosophie & positionnement) :
 combien ça coûte, combien ça rapporte, en combien de temps, qui doit s'impliquer.
 
+## Règle typographique (IMPÉRATIVE — toutes slides)
+**Aucun tiret long dans le texte des slides.** Ne jamais écrire de tiret cadratin `—` ni de tiret
+demi-cadratin `–` (ils « font IA »). À la place : une **virgule**, un **deux-points**, une
+**parenthèse**, ou **deux phrases**. Le trait d'union normal `-` (mots composés) reste autorisé.
+Cette règle s'applique au contenu réécrit, **y compris la méta cover** (ex. « Préparé pour » :
+écrire « Aledia, direction générale », pas « Aledia — direction générale »). Le template de
+référence contient des `—` dans son exemple : **les supprimer en réécrivant**.
+
 ## Ce qui ne bouge jamais (figé dans le template)
 `<style>`, `<script>`, scène 3D et nav du template `templates/r1-premier-rdv.html`. On ne compose
 que le bloc `<div class="slides">`.

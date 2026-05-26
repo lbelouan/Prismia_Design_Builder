@@ -28,3 +28,9 @@ briefs/
 
 # === PDF exportés, où qu'ils soient ===
 *.pdf
+
+# === Fichiers temporaires/verrous Office (PowerPoint, Word, Excel) ===
+~$*
+
+# === Partie création de PPT (propositions) + données client associées : local uniquement ===
+proposals/

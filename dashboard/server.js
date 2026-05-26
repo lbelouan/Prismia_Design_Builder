@@ -140,8 +140,9 @@ const server = http.createServer(async (req, res) => {
         const type = TYPES[b.type] ? b.type : '';
         const scen = type ? `scenarios/${type}.md` : 'scenarios/<type du brief>.md';
         const deckPath = bp.replace(/\.md$/, '.html');   // même dossier/base que le brief : clients/<slug>/<slug>-<type>.html
-        const interlocLine = `INTERLOCUTEUR : le brief contient une section « Interlocuteur (visio) » (nom + poste de la personne rencontrée). Reporte-le sur la cover « Préparé pour » (ex. « <Nom>, <poste> — <Société> ») pour éviter toute confusion. S'il est marqué non renseigné, DEMANDE-le dans la gate avant de générer.\n`;
+        const interlocLine = `INTERLOCUTEUR : le brief contient une section « Interlocuteur (visio) » (nom + poste de la personne rencontrée). Reporte-le sur la cover « Préparé pour » (ex. « <Nom>, <poste>, <Société> ») pour éviter toute confusion. S'il est marqué non renseigné, DEMANDE-le dans la gate avant de générer.\n`;
         const dateLine = `DATE DU RDV : elle doit figurer sur la cover. Si le brief ne la précise pas (champ \`rdv_date\`) et qu'elle n'est pas mentionnée dans le contexte, DEMANDE-la systématiquement dans la gate avant de générer.\n`;
+        const noDashLine = `TYPOGRAPHIE (impératif) : AUCUN tiret long dans le texte des slides — ni cadratin \`—\` ni demi-cadratin \`–\` (ça « fait IA »). Utilise une virgule, un deux-points, une parenthèse ou deux phrases. Le trait d'union \`-\` des mots composés reste OK. Le template de référence en contient : SUPPRIME-les en réécrivant (y compris la méta cover).\n`;
         if (FREE_TYPES.has(type)) {
           prompt = `Projet Prismia — génération d'un deck de RENDEZ-VOUS DE SUIVI (R2 / R3 / +), scénario à composition LIBRE. Active l'orchestrateur prismia-deck pour le brief \`${bp}\`.\n`
             + `Lis IMPÉRATIVEMENT : (a) le scénario \`scenarios/suivi-libre.md\` — tu ADAPTES le NOMBRE de slides ET leur contenu au contexte, sans trame imposée ; (b) \`scenarios/_socle.md\` UNIQUEMENT pour le CONTRAT DE DESIGN (boule 3D CSS + violet/aubergine + verre, template figé, 4 compteurs Prismia fixes SI tu inclus une slide Prismia) ; (c) la knowledge \`knowledge/*.md\` à piocher au besoin.\n`
@@ -149,7 +150,7 @@ const server = http.createServer(async (req, res) => {
             + `DESIGN VERROUILLÉ : clone \`templates/r1-premier-rdv.html\`, ne touche JAMAIS au \`<style>\`/\`<script>\`/à la boule/à la nav ; compose uniquement \`<div class="slides">\` en RÉUTILISANT les composants existants (cover, eyebrow/title, two-col, checklist, barres .maturity[data-width], diag-card, tabs/territoires, cases-grid, diff-chip, cta-card, timeline, pillar, stat/counter, q-grid). N'invente AUCUNE nouvelle CSS, aucun style en dur.\n`
             + `GARDE-FOU PREUVES : en slide « cas », UNIQUEMENT des CLIENTS SIGNÉS (knowledge/case-studies.md) — jamais un prospect.\n`
             + `NUMÉRO DU RDV : le brief précise \`rdv_no\` (ex. R2, R3) — cadre la narration en conséquence (rappel de l'étape précédente, ce qui a avancé depuis).\n`
-            + interlocLine + dateLine
+            + interlocLine + dateLine + noDashLine
             + `1) GATE (suivi) : assure-toi d'avoir (a) où on en est (RDV précédents / ce qui a avancé), (b) l'OBJECTIF de ce RDV, (c) le matériau à présenter. Si l'objectif OU le matériau manque, pose UNE seule salve de questions ciblées et ARRÊTE-toi (ne génère pas encore).\n`
             + `2) Sinon, compose librement le deck (clone-and-compose) à l'emplacement EXACT \`${deckPath}\`, puis confirme ce chemin.\n`
             + `Réponds en français, concis ; pas de longs tableaux.`;
@@ -157,7 +158,7 @@ const server = http.createServer(async (req, res) => {
           prompt = `Projet Prismia — génération d'un deck de PREMIER RENDEZ-VOUS${type ? ' (scénario : ' + type + ')' : ''}. Active l'orchestrateur prismia-deck pour le brief \`${bp}\`.\n`
             + `Suis IMPÉRATIVEMENT : (a) la STRUCTURE du scénario dans \`${scen}\` ; (b) le socle commun \`scenarios/_socle.md\` (DA = boule 3D CSS + violet/aubergine, template figé, 4 compteurs Prismia fixes) ; (c) la knowledge \`knowledge/*.md\`.\n`
             + `Le brief peut contenir une section « Contexte entreprise (recherche — SECONDAIRE) » : utilise-la seulement en complément, sans qu'elle prenne JAMAIS le pas sur le transcript et le contexte additionnel de Timeo.\n`
-            + interlocLine + dateLine
+            + interlocLine + dateLine + noDashLine
             + `1) Applique d'abord la GATE de complétude (selon le scénario). S'il manque des infos minimales, pose UNE seule salve de questions ciblées et ARRÊTE-toi (ne génère pas encore).\n`
             + `2) Sinon, génère le deck (clone-and-compose depuis templates/r1-premier-rdv.html, en suivant la structure du scénario) à l'emplacement EXACT \`${deckPath}\` (même dossier que le brief), puis confirme ce chemin.\n`
             + `Réponds en français, concis ; pas de longs tableaux.`;
