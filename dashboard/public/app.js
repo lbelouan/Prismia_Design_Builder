@@ -6,7 +6,8 @@ const slugify = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 const TYPE_DESC = {
   'r1-decouverte': 'Contact large — contexte, diagnostic, valeur.',
   'r1-pilote': 'Cadrage d\'un pilote — périmètre, quick wins, ROI, planning.',
-  'r1-carto': 'Audit / cartographie — diagnostic processus, roadmap.'
+  'r1-carto': 'Audit / cartographie — diagnostic processus, roadmap.',
+  'suivi-libre': 'RDV de suivi (R2, R3…) — composition libre, slides adaptées au contexte.'
 };
 let TYPES = {}, OPPS = [], DECKS = [], KFILES = [], selType = null, ctxFiles = [], kCurrent = null, kRaw = '', CHAT = [], AGENT_SID = null, AGENT_BUSY = false, SFILES = [], sCurrent = null, AGENT_DECK = null, AGENT_SLUG = null, CHAT_FILES = [];
 
@@ -58,7 +59,27 @@ $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
 /* ---------- création ---------- */
 function renderTypes() {
   $('#types').innerHTML = Object.keys(TYPES).map(k => `<div class="type" data-type="${k}"><div class="t">${esc(TYPES[k])}</div><div class="d">${esc(TYPE_DESC[k] || '')}</div></div>`).join('');
-  $$('#types .type').forEach(el => el.onclick = () => { selType = el.dataset.type; $$('#types .type').forEach(t => t.classList.toggle('active', t.dataset.type === selType)); });
+  $$('#types .type').forEach(el => el.onclick = () => { selType = el.dataset.type; $$('#types .type').forEach(t => t.classList.toggle('active', t.dataset.type === selType)); updateSuiviExtra(true); });
+}
+/* Suivi (R2+) : suggère le prochain n° libre pour cette entreprise (≥2) afin de ne pas écraser
+   un deck existant ; reste éditable (remettre un n° existant = régénérer ce RDV-là). */
+function suggestNextRdvNo() {
+  const slug = slugify($('#company').value.trim()); if (!slug) return 2;
+  const re = new RegExp('^' + slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-suivi-libre(?:-r(\\d+))?\\.html$');
+  let max = 1;
+  for (const d of DECKS) { if (d.slug !== slug) continue; const m = d.file.match(re); if (m) max = Math.max(max, m[1] ? +m[1] : 2); }
+  return Math.max(max + 1, 2);
+}
+function updateRdvnoPreview() {
+  const slug = slugify($('#company').value.trim()) || '<slug>';
+  const n = parseInt($('#rdvno').value, 10) || 2;
+  const el = $('#rdvno-preview'); if (el) el.textContent = `${slug}-suivi-libre-r${n}.html`;
+}
+function updateSuiviExtra(resetDefault) {
+  const box = $('#suivi-extra'); if (!box) return;
+  const isSuivi = selType === 'suivi-libre';
+  box.classList.toggle('hidden', !isSuivi);
+  if (isSuivi) { if (resetDefault) $('#rdvno').value = suggestNextRdvNo(); updateRdvnoPreview(); }
 }
 function renderCompanies() { $('#companies').innerHTML = OPPS.map(o => `<option value="${esc(o.company)}">`).join(''); }
 function renderFiles() { $('#filelist').innerHTML = ctxFiles.map(f => `<div class="file">📎 ${esc(f)}</div>`).join(''); }
@@ -87,6 +108,19 @@ function toolLabel(blk) {
   const map = { Read: '📄 lecture', Write: '📝 écriture', Edit: '✏️ édition', MultiEdit: '✏️ édition', Bash: '⌨︎ commande', WebSearch: '🔎 recherche web', WebFetch: '🌐 fetch', Glob: '🔍 fichiers', Grep: '🔍 recherche', Task: '🤖 sous-agent', TodoWrite: '☑︎ plan', Skill: '🧩 skill' };
   return (map[n] || ('→ ' + n)) + (arg ? ' · ' + String(arg).replace(/^.*\//, '') : '');
 }
+/* Erreurs de génération rendues bien visibles (blockquote ⚠️) et explicites. */
+const SUBTYPE_FR = {
+  error_max_turns: "L'agent a atteint la limite de tours sans terminer la génération. Relance, ou simplifie / complète le brief.",
+  error_during_execution: "Erreur pendant l'exécution de l'agent (voir le terminal du serveur pour le détail)."
+};
+function resultErrLabel(ev) {
+  return SUBTYPE_FR[ev.subtype] || ('Échec de génération' + (ev.subtype ? ` (${ev.subtype})` : '') + (ev.result ? ` : ${ev.result}` : '') + '.');
+}
+function fmtErr(msg) {
+  const lines = String(msg == null ? 'erreur inconnue' : msg).trim().split('\n');
+  lines[0] = '⚠️ **Erreur de génération** — ' + lines[0];
+  return lines.map(l => '> ' + l).join('\n');
+}
 async function streamAgent(payload, live) {
   const resp = await fetch('/api/agent', { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' } });
   const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf = '';
@@ -98,8 +132,12 @@ async function streamAgent(payload, live) {
         if (blk.type === 'text' && blk.text) { live.text += (live.text ? '\n\n' : '') + blk.text; live.activity = ''; grab(blk.text); }
         else if (blk.type === 'tool_use') { live.activity = toolLabel(blk); const i = blk.input || {}; grab(i.file_path || i.path || i.command || ''); }
       }
-    } else if (ev.type === 'result') { if (ev.result) live.text = ev.result; live.activity = ''; grab(ev.result); }
-    else if (ev.type === 'error') { live.text += (live.text ? '\n\n' : '') + '⚠️ ' + (ev.message || 'erreur'); live.activity = ''; }
+    } else if (ev.type === 'result') {
+      if (ev.is_error || (ev.subtype && ev.subtype !== 'success')) { live.text += (live.text ? '\n\n' : '') + fmtErr(resultErrLabel(ev)); }
+      else if (ev.result) { live.text = ev.result; grab(ev.result); }
+      live.activity = '';
+    }
+    else if (ev.type === 'error') { live.text += (live.text ? '\n\n' : '') + fmtErr(ev.message); live.activity = ''; }
     renderChat();
   };
   while (true) {
@@ -108,6 +146,7 @@ async function streamAgent(payload, live) {
     let nl; while ((nl = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1); if (line) { try { handle(JSON.parse(line)); } catch (e) {} } }
   }
   if (buf.trim()) { try { handle(JSON.parse(buf.trim())); } catch (e) {} }
+  if (!live.text.trim() && !AGENT_DECK) live.text = fmtErr("L'agent n'a renvoyé aucune réponse. Vérifie le terminal du serveur (CLI authentifié ? quota ?), puis réessaie.");
   live.activity = ''; renderChat();
 }
 function renderAgentActions() {
@@ -131,7 +170,7 @@ async function launchAgent(briefPath, type) {
   $('#agent-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   setBusy(true);
   try { await streamAgent({ action: 'launch', brief_path: briefPath, type: type }, live); }
-  catch (e) { live.text += (live.text ? '\n\n' : '') + '⚠️ erreur : ' + e; live.activity = ''; renderChat(); }
+  catch (e) { live.text += (live.text ? '\n\n' : '') + fmtErr('Connexion au serveur perdue pendant la génération : ' + e + '\nLe serveur `node dashboard/server.js` tourne-t-il toujours ?'); live.activity = ''; renderChat(); }
   setBusy(false); await afterAgentTurn();
 }
 /* pièces jointes du chat : uploadées dans clients/<slug>/context/, lues par l'agent repris */
@@ -160,7 +199,7 @@ async function sendChat() {
   const live = { role: 'assistant', text: '', activity: 'réflexion…' }; CHAT.push(live); renderChat();
   setBusy(true);
   try { await streamAgent({ action: 'reply', session_id: AGENT_SID, message: (text || 'Voici des pièces jointes à prendre en compte.') + note }, live); }
-  catch (e) { live.text += (live.text ? '\n\n' : '') + '⚠️ erreur : ' + e; live.activity = ''; renderChat(); }
+  catch (e) { live.text += (live.text ? '\n\n' : '') + fmtErr('Connexion au serveur perdue : ' + e + '\nLe serveur `node dashboard/server.js` tourne-t-il toujours ?'); live.activity = ''; renderChat(); }
   setBusy(false); await afterAgentTurn();
 }
 
@@ -173,9 +212,23 @@ function renderEnrich(state) {
   el.innerHTML = `<div class="enrich-prog">${head}<div class="enrich-steps">${ENRICH_STEPS.map(s => `<div>${esc(s)}</div>`).join('')}</div></div>`;
 }
 function pushStep(s) { s = String(s || '').trim(); if (!s) return; if (ENRICH_STEPS[ENRICH_STEPS.length - 1] === s) return; ENRICH_STEPS.push(s); renderEnrich('run'); }
+let ENRICH_RUNNING = false, ENRICH_DONE_FOR = '';
+const isUrlish = v => /^(https?:\/\/)?[a-z0-9][a-z0-9.\-]*\.[a-z]{2,}(\/|$)/i.test(String(v || '').trim());
+/* Auto-recherche : dès que l'URL du site est validée (et la société remplie), on lance
+   l'agent de contexte sans 2e étape. Garde-fous : URL plausible, pas déjà en cours, pas
+   déjà fait pour ce couple société+URL, et on n'écrase pas un contexte déjà saisi. */
+function maybeAutoEnrich() {
+  const company = $('#company').value.trim(), website = $('#website').value.trim();
+  if (!company || !isUrlish(website) || ENRICH_RUNNING) return;
+  if (ENRICH_DONE_FOR === slugify(company) + '|' + website) return;
+  if ($('#ctxcompany').value.trim()) return;   // ne pas écraser un contexte déjà présent
+  enrich();
+}
 async function enrich() {
   const company = $('#company').value.trim();
   if (!company) return toast('Renseigne d\'abord la <b>société</b>.');
+  if (ENRICH_RUNNING) return;
+  ENRICH_RUNNING = true;
   const slug = slugify(company);
   const btn = $('#enrich'), old = btn.textContent;
   btn.disabled = true; btn.textContent = 'Recherche…';
@@ -194,10 +247,10 @@ async function enrich() {
     };
     while (true) { const { done, value } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); let nl; while ((nl = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1); if (line) { try { handle(JSON.parse(line)); } catch (e) {} } } }
     const r = await api('/api/company-context?slug=' + encodeURIComponent(slug));
-    if (r.content && r.content.trim()) { $('#ctxcompany').value = r.content.trim(); pushStep('Contexte rédigé et pris en compte (éditable ci-dessous).'); renderEnrich('done'); toast('✅ Contexte entreprise enrichi.'); }
+    if (r.content && r.content.trim()) { $('#ctxcompany').value = r.content.trim(); ENRICH_DONE_FOR = slug + '|' + $('#website').value.trim(); pushStep('Contexte rédigé et pris en compte (éditable ci-dessous).'); renderEnrich('done'); toast('✅ Contexte entreprise enrichi.'); }
     else { pushStep('Terminé — aucun contexte écrit. Réessaie ou complète à la main.'); renderEnrich('error'); }
   } catch (e) { pushStep('⚠️ ' + e); renderEnrich('error'); }
-  btn.disabled = false; btn.textContent = old;
+  ENRICH_RUNNING = false; btn.disabled = false; btn.textContent = old;
 }
 /* auto-enregistrement (debounce) : pas besoin de cliquer, l'édition est conservée et prise en compte */
 let _ctxSaveT = null;
@@ -218,7 +271,8 @@ async function compose() {
   if (!company) return toast('Renseigne la <b>société</b>.');
   if (!selType) return toast('Choisis un <b>type</b> de présentation.');
   const slug = slugify(company); AGENT_SLUG = slug;
-  const body = { type: selType, slug, company, website: $('#website').value.trim(), rdv_date: $('#rdvdate').value, transcript: $('#transcript').value, context_extra: $('#ctxextra').value, context_company: $('#ctxcompany').value, context_files: ctxFiles };
+  const rdvNo = selType === 'suivi-libre' ? String(parseInt($('#rdvno').value, 10) || 2) : '';
+  const body = { type: selType, slug, company, website: $('#website').value.trim(), contact_name: $('#contactname').value.trim(), contact_role: $('#contactrole').value.trim(), rdv_date: $('#rdvdate').value, rdv_no: rdvNo, transcript: $('#transcript').value, context_extra: $('#ctxextra').value, context_company: $('#ctxcompany').value, context_files: ctxFiles };
   const r = await api('/api/brief', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } });
   if (!r.path) return toast('Erreur : ' + (r.error || '?'));
   toast(`✅ Brief écrit : <code>${r.path}</code> — lancement de l'agent…`);
@@ -313,8 +367,11 @@ $('#chat-send').onclick = sendChat;
 $('#chatbox').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 $('#files').onchange = uploadFiles;
 $('#enrich').onclick = enrich;
+$('#website').addEventListener('change', maybeAutoEnrich);
+$('#website').addEventListener('blur', maybeAutoEnrich);
 $('#ctxcompany').addEventListener('input', autoSaveCompanyContext);
-$('#company').addEventListener('change', loadCompanyContext);
+$('#rdvno').addEventListener('input', updateRdvnoPreview);
+$('#company').addEventListener('change', () => { updateSuiviExtra(true); Promise.resolve(loadCompanyContext()).finally(maybeAutoEnrich); });
 $('#compose').onclick = compose;
 $('#kedit-btn').onclick = kEdit;
 $('#kcancel').onclick = kView;

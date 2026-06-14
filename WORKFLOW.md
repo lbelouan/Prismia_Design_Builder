@@ -7,6 +7,13 @@ jusqu'à la **livraison du HTML** final. S'appuie sur la DA (`design/`), le temp
 **Critère directeur : rapidité de delivery.** Tu ne dictes que la moitié spécifique au
 client ; le reste vient de `knowledge/`.
 
+> **Ce document décrit le pipeline RDV1** (scénarios `r1-*`, à socle fixe). Pour les **RDV de
+> suivi (R2, R3, +)**, le pipeline est **le même** (gate → lookup/fiche → composition → livraison),
+> mais la **composition est LIBRE** : pas de socle imposé, le **nombre de slides et leur contenu
+> s'adaptent au contexte** accumulé. Même template, même DA, même boule. Détail :
+> `scenarios/suivi-libre.md`. La gate y vérifie surtout **l'objectif du RDV** et **le matériau à
+> présenter** (le reste du contexte venant des RDV précédents / fiche prospect / fichiers joints).
+
 ---
 
 ## Le flux en un coup d'œil

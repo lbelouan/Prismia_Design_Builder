@@ -39,12 +39,27 @@
       <label>Société</label>
       <input type="text" id="company" list="companies" placeholder="Nom de l'entreprise (ou choisis une existante)…" autocomplete="off">
       <datalist id="companies"></datalist>
-      <label>Site web de l'entreprise <span class="opt">optionnel — accélère l'enrichissement</span></label>
-      <input type="text" id="website" placeholder="https://… (sert à la recherche de contexte)" autocomplete="off">
+      <label>Site web de l'entreprise <span class="opt">optionnel — la recherche démarre dès validation</span></label>
+      <input type="text" id="website" placeholder="https://… (la recherche entreprise se lance automatiquement)" autocomplete="off">
+      <div class="row" style="gap:10px">
+        <div style="flex:1">
+          <label>Interlocuteur en visio <span class="opt">nom — évite les confusions</span></label>
+          <input type="text" id="contactname" placeholder="Prénom Nom de la personne rencontrée…" autocomplete="off">
+        </div>
+        <div style="flex:1">
+          <label>Poste / rôle <span class="opt">fonction dans l'entreprise</span></label>
+          <input type="text" id="contactrole" placeholder="ex. Directeur des opérations…" autocomplete="off">
+        </div>
+      </div>
       <label>Date du RDV <span class="opt">si connue — sinon l'agent la demandera</span></label>
       <input type="date" id="rdvdate" autocomplete="off">
-      <label>Type de présentation (RDV1)</label>
+      <label>Type de présentation</label>
       <div class="types" id="types"></div>
+      <div id="suivi-extra" class="hidden">
+        <label>RDV de suivi n° <span class="opt">évite d'écraser un deck existant (R2, R3…)</span></label>
+        <input type="number" id="rdvno" min="2" step="1" value="2" style="max-width:140px" autocomplete="off">
+        <div class="hint" style="margin:6px 0 0">Le deck sera enregistré sous <code id="rdvno-preview">…-suivi-libre-r2.html</code>.</div>
+      </div>
     </div>
 
     <div class="panel">

@@ -1,14 +1,16 @@
 ---
 name: prismia-deck
 description: >-
-  Génère une présentation HTML de PREMIER RENDEZ-VOUS client pour Prismia (conseil IA),
-  fidèle à la DA du deck de référence (violet/aubergine, glassmorphism, 3D irisée) et
-  exportable en PDF. Déclencher quand l'utilisateur décrit une situation client en vue d'un
-  premier RDV / RDV1 / RDV découverte / call de découverte — par ex. « prépare une
-  présentation pour [client] », « j'ai un premier rendez-vous avec [entreprise] dans
-  [secteur] », « génère le deck RDV1 pour... », ou quand il dicte/colle un brief client
-  (contexte, enjeux, maturité IA) à transformer en présentation. Ne PAS déclencher pour les
-  autres types de RDV ni pour la mémoire client (hors périmètre actuel).
+  Génère une présentation HTML de rendez-vous client pour Prismia (conseil IA), fidèle à la DA
+  du deck de référence (violet/aubergine, glassmorphism, 3D irisée) et exportable en PDF. Couvre
+  deux familles : le PREMIER RENDEZ-VOUS (scénarios `r1-*` : découverte / pilote / carto, à
+  socle fixe) ET les RENDEZ-VOUS DE SUIVI R2 / R3 / + (scénario `suivi-libre`, à composition
+  libre : nombre de slides et contenu adaptés au contexte). Déclencher quand l'utilisateur décrit
+  une situation client en vue d'un RDV — par ex. « prépare une présentation pour [client] »,
+  « j'ai un premier rendez-vous avec [entreprise] dans [secteur] », « génère le deck RDV1
+  pour... », « prépare le R2 / le point d'avancement / la restitution chez [client] », ou quand
+  il dicte/colle un brief client (contexte, enjeux, maturité IA, suite d'un RDV précédent) à
+  transformer en présentation. Ne PAS déclencher pour la mémoire client / CRM (hors périmètre).
 ---
 
 # prismia-deck — Orchestrateur de présentations RDV1
@@ -109,10 +111,16 @@ contient **que de l'information** — aucune référence aux slides :
 - **`scenarios/r1-decouverte.md`** — général sur l'approche (rien d'identifié au call).
 - **`scenarios/r1-carto.md`** — le produit (plateforme de diagnostic) + cas d'audit.
 - **`scenarios/r1-pilote.md`** — centré sur le prototype identifié (douleur → ROI → pilote).
+- **`scenarios/suivi-libre.md`** — **RDV de suivi R2 / R3 / +**, composition **LIBRE** : pas de
+  socle imposé, on **adapte le nombre de slides et leur contenu au contexte** (RDV précédents,
+  proposition, résultats…). Seuls invariants : la **DA** (template figé, boule, compteurs Prismia
+  si slide Prismia) et le garde-fou preuves (clients signés). `_socle.md` n'est lu que pour le
+  **contrat de design** (pas pour une trame). Gate orientée suivi (objectif du RDV + matériau).
 
-Au déclenchement : lire le brief `clients/<slug>/<slug>-<type>.md`, ouvrir **`scenarios/_socle.md`** ET le
-fichier du `type`, puis **composer le deck** (clone-and-compose) en suivant l'encapsulation. Après
-génération : brief en `status: généré` + MAJ fiche prospect. *(Plus tard : r2, r3, proposition, devis.)*
+Au déclenchement : lire le brief `clients/<slug>/<slug>-<type>.md`, ouvrir le fichier du `type` ET
+`scenarios/_socle.md` (socle R1 **ou** contrat de design seul pour `suivi-libre`), puis **composer
+le deck** (clone-and-compose) en suivant l'encapsulation. Après génération : brief en
+`status: généré` + MAJ fiche prospect (historique RDV).
 
 > **Éléments FIXES** (détail dans `_socle.md`) : les 4 compteurs Prismia imposés sur la slide
 > Prismia (déjà câblés, ne réécrire que les 3 cartes en dessous) ; décor 3D = la **boule CSS**

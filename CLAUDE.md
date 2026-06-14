@@ -12,8 +12,15 @@ production de présentations HTML pour les clients : à partir d'un **brief** (s
 à l'oral puis transcrit), on génère une présentation HTML soignée, **toujours cohérente avec
 la direction artistique (DA)**, et **exportable en PDF**.
 
-- **Périmètre actuel : UNIQUEMENT la présentation de PREMIER RENDEZ-VOUS.**
-  Les autres types de RDV et la mémoire client viendront plus tard — ne pas les construire.
+- **Périmètre actuel : deux familles de présentations.**
+  1. **Premier rendez-vous** — scénarios `r1-*` (découverte / pilote / carto), à **socle de
+     slides fixe** (trame ci-dessous).
+  2. **Rendez-vous de suivi (R2, R3, +)** — scénario `suivi-libre`, à **composition LIBRE** :
+     on **adapte le nombre de slides et leur contenu au contexte** accumulé (RDV précédents,
+     proposition, résultats…). **Aucune trame imposée** ; seul invariant = la DA du template R1.
+     Détail : `scenarios/suivi-libre.md`.
+
+  La mémoire client / CRM reste hors périmètre.
 - **Critère directeur de toutes les décisions : la RAPIDITÉ de delivery du HTML.**
 
 ---
@@ -59,7 +66,7 @@ Projet_templateR1/
 ├── tools/                       # outillage local : export-pdf.mjs (screenshots → PDF, puppeteer-core)
 ├── dashboard/                   # cockpit local (serveur Node + SPA, mode B) — `node dashboard/server.js`
 ├── scenarios/                   # ENCAPSULATION knowledge → slides (visible, racine) :
-│                                #   _socle.md + r1-decouverte/pilote/carto.md
+│                                #   _socle.md + r1-decouverte/pilote/carto.md + suivi-libre.md (R2+ libre)
 └── .claude/skills/              # (caché — convention Claude Code)
     ├── ui-ux-pro-max/           # skill qualité UX/UI (installé v2.5.0)
     └── prismia-deck/SKILL.md    # déclencheur de l'orchestrateur (pointe vers scenarios/)
@@ -147,7 +154,11 @@ selon l'audio. Les numéros = ordre indicatif, pas une limite.
 4. **Navigation** = une seule pilule `.nav-mini` **en bas à droite** (compteur + prev/next)
    + clavier (← → espace PageUp/Down Home/End). Pas de dock par slide.
 5. **Icônes en SVG ou numéros mono, jamais d'emoji.**
-6. **3D / décor** : une **boule CSS animée** (`#three-fallback` : blob iridescent morphing +
+6. **Aucun tiret long dans le texte des slides.** Jamais de tiret cadratin `—` ni demi-cadratin
+   `–` (ça « fait IA ») — utiliser virgule, deux-points, parenthèse ou deux phrases. Le trait
+   d'union `-` (mots composés) reste OK. S'applique à tout le contenu réécrit, **y compris la
+   méta cover**. Le template de référence en contient : les supprimer en réécrivant.
+7. **3D / décor** : une **boule CSS animée** (`#three-fallback` : blob iridescent morphing +
    anneaux orbitaux + éclat + flottement), repositionnée par slide, **recolorée par le tweak
    Couleurs** (variables CSS). **Aucune dépendance WebGL/Three.js.** (Une variante **prisme
    GLB** a été testée puis **écartée** — choix verrouillé sur la boule.)
